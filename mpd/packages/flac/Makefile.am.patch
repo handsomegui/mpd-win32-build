@@ -1,0 +1,13 @@
+diff --git a/Makefile.am b/Makefile.am
+index 0a65206..6b2c454 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -28,7 +28,7 @@
+ # distclean: remove everything except what goes in the distribution
+ #
+ 
+-AUTOMAKE_OPTIONS = foreign 1.7
++AUTOMAKE_OPTIONS = foreign 1.10
+ 
+ ACLOCAL_AMFLAGS = -I m4
+ 

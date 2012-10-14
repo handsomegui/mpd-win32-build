@@ -1,0 +1,13 @@
+diff --git a/Makefile.in b/Makefile.in
+index f645950..766615e 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -422,7 +422,7 @@ EXTRA_DIST = ChangeLog.pre-2-20 ChangeLog.pre-2-18 ChangeLog.pre-2-16 \
+ 	gio-2.0-uninstalled.pc.in gio-unix-2.0-uninstalled.pc.in
+ TEST_PROGS = 
+ ACLOCAL_AMFLAGS = -I m4macros ${ACLOCAL_FLAGS}
+-SUBDIRS = . m4macros glib gmodule gthread gobject gio tests po docs
++SUBDIRS = . m4macros glib gthread
+ DIST_SUBDIRS = $(SUBDIRS) build
+ bin_SCRIPTS = glib-gettextize
+ AM_CPPFLAGS = \

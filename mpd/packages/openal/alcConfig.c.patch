@@ -1,0 +1,16 @@
+diff --git a/alcConfig.c b/alcConfig.c
+index 012c677..8d49425 100644
+--- a/alcConfig.c
++++ b/alcConfig.c
+@@ -19,11 +19,7 @@
+  */
+ 
+ #ifdef _WIN32
+-#ifdef __MINGW64__
+ #define _WIN32_IE 0x501
+-#else
+-#define _WIN32_IE 0x400
+-#endif
+ #endif
+ 
+ #include "config.h"

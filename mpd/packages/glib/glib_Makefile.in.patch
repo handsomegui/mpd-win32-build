@@ -1,0 +1,15 @@
+diff --git a/glib/Makefile.in b/glib/Makefile.in
+index 96a4b97..471d324 100644
+--- a/glib/Makefile.in
++++ b/glib/Makefile.in
+@@ -547,8 +547,8 @@ nodist_configexecinclude_HEADERS = glibconfig.h
+ @ENABLE_REGEX_TRUE@gregex_h = gregex.h
+ @HAVE_GCC_BUILTINS_FOR_ATOMIC_OPERATIONS_FALSE@gatomic_c = gatomic.c
+ @HAVE_GCC_BUILTINS_FOR_ATOMIC_OPERATIONS_TRUE@gatomic_c = gatomic-gcc.c
+-SUBDIRS = libcharset $(PRINTF_SUBDIR) $(MAYBE_PCRE) update-pcre . tests
+-DIST_SUBDIRS = libcharset gnulib pcre update-pcre tests
++SUBDIRS = libcharset $(PRINTF_SUBDIR) $(MAYBE_PCRE) update-pcre .
++DIST_SUBDIRS = libcharset gnulib pcre update-pcre
+ AM_CPPFLAGS = \
+ 	$(glib_INCLUDES) 		\
+ 	$(pcre_inc) 			\

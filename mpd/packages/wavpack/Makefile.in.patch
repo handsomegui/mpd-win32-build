@@ -1,0 +1,13 @@
+diff --git a/Makefile.in b/Makefile.in
+index ed95f6d..dfa76d8 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -202,7 +202,7 @@ target_alias = @target_alias@
+ top_builddir = @top_builddir@
+ top_srcdir = @top_srcdir@
+ AUTOMAKE_OPTIONS = foreign
+-SUBDIRS = src include cli man
++SUBDIRS = src include man
+ pkgconfigdir = $(libdir)/pkgconfig
+ pkgconfig_DATA = wavpack.pc
+ MAINTAINERCLEANFILES = \

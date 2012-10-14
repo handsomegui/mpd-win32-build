@@ -1,0 +1,14 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index ef3d08d..41fbc0f 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -158,6 +158,9 @@ ELSE()
+     SET(CMAKE_C_FLAGS_DEBUG "-g3 -D_DEBUG" CACHE STRING
+         "Flags used by the compiler during debug builds."
+         FORCE)
++    SET(CMAKE_C_FLAGS "-march=i686" CACHE STRING
++        "Flags used by the compiler during all build types."
++        FORCE)
+ 
+     CHECK_C_SOURCE_COMPILES("int foo() __attribute__((destructor));
+                              int main() {return 0;}" HAVE_GCC_DESTRUCTOR)

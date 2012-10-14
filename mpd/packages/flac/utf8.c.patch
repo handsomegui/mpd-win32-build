@@ -1,0 +1,14 @@
+diff --git a/src/share/utf8/utf8.c b/src/share/utf8/utf8.c
+index 75a2505..d307ee2 100644
+--- a/src/share/utf8/utf8.c
++++ b/src/share/utf8/utf8.c
+@@ -37,6 +37,9 @@
+ 
+ #ifdef _WIN32
+ 
++void *safe_malloc_mul_2op_p(size_t size1, size_t size2);
++#define safe_malloc_mul_2op_ safe_malloc_mul_2op_p
++
+ 	/* Thanks to Peter Harris <peter.harris@hummingbird.com> for this win32
+ 	 * code.
+ 	 */

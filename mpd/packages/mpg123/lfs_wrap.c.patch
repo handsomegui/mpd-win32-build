@@ -1,0 +1,15 @@
+diff --git a/libmpg123/lfs_wrap.c b/libmpg123/lfs_wrap.c
+index d1751fb..966fc27 100644
+--- a/libmpg123/lfs_wrap.c
++++ b/libmpg123/lfs_wrap.c
+@@ -30,6 +30,10 @@
+ #include "compat.h"
+ #include "debug.h"
+ 
++#ifndef EOVERFLOW
++#define EOVERFLOW ERANGE
++#endif
++
+ /*
+ 	Now, start off easy... translate simple API calls.
+ 	I need to deal with these here:
