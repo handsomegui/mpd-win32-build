@@ -104,24 +104,13 @@ Target is a package to deal with. Action is one of the following:
 
 Examples:
 
-  Creating MPD package from scratch:
+  Building MPD package from latest released tarball:
 
-    $ cd mpd
-    $ ../buildtool build mpd
-    $ ../buildtool pack mpd
-
-    > cd mpd
-    > ..\buildtool build mpd
-    > ..\buildtool pack mpd
+    $ buildtool build-all mpd-release
+    $ buildtool pack mpd-release
 
   The same but use 4 build jobs at once:
 
-    $ cd mpd
-    $ ../buildtool generate-makefile mpd
-    $ make -j 4 -f work/mpd.mk
-    $ ../buildtool pack mpd
-  
-    > cd mpd
-    > ..\buildtool generate-makefile mpd
-    > mingw32-make -j 4 -f work\mpd.mk
-    > ..\buildtool pack mpd
+    $ buildtool generate-makefile mpd-release
+    $ make -j 4 -f work/mpd-release.mk
+    $ buildtool pack mpd-release
