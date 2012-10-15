@@ -16,7 +16,7 @@ def init(profile):
         config_dir = path.join(path.expanduser('~'), '.buildtool')
 
     if profile:
-        config_files.append('buildtool.' + profile + '.conf')
+        config_files.append('buildtool.%s.conf' % profile)
 
     _config_vars = {}
     for file in config_files:
