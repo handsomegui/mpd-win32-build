@@ -1,7 +1,4 @@
 import cmdutil
-from package import *
-
-info = package('zlib')
 
 fetch('http://sourceforge.net/projects/libpng/files/zlib/1.2.7/zlib-1.2.7.tar.bz2/download')
 

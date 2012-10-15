@@ -1,7 +1,3 @@
-from package import *
-
-package('curl')
-
 options = """
     --enable-http
     --enable-file

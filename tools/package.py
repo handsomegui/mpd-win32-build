@@ -3,10 +3,10 @@ import packageinfo, cmdutil, config, fsutil
 
 from os import path
 
-def package(name):
+def init(info):
     global _info
 
-    _info = packageinfo.get(name)
+    _info = info
 
     fsutil.make_dir(_info.build_dir)
     fsutil.make_dir(_info.install_dir)
@@ -16,8 +16,6 @@ def package(name):
     fsutil.safe_remove(_info.log_file)
 
     cmdutil.redirect_output(_info.log_file)
-
-    return _info
 
 def build_cmake(options = '', subdir = ''):
     build_dir = _get_build_dir(subdir)

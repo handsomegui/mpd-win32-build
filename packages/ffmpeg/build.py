@@ -1,6 +1,4 @@
-from package import *
-
-info = package('ffmpeg')
+fetch('http://ffmpeg.org/releases/ffmpeg-1.0.tar.bz2')
 
 # build options are taken from
 # https://github.com/lalinsky/build-scripts/blob/master/ffmpeg/common.sh
@@ -100,7 +98,6 @@ options = """
 if info.crossbuild:
     options += ' --enable-cross-compile --arch=x86 --target-os=mingw32 --cross-prefix=' + info.crossbuild_host + '-'
 
-fetch('http://ffmpeg.org/releases/ffmpeg-1.0.tar.bz2')
 build(shared_lib=True, options=options, crossbuild_options=False)
 
 collect_binaries('avcodec-*.dll avformat-*.dll avutil-*.dll')
