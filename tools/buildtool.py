@@ -61,7 +61,7 @@ def do_pack(info):
         raise ValueError('Version file is not found: ' + info.version_file)
 
     version = fsutil.read_file(info.version_file).strip()
-    dist_name = info.name + '-' + version + '-win32-' + info.arch()
+    dist_name = info.dist_name + '-' + version + '-win32-' + info.arch()
     dist_file = path.join(info.dist_dir, dist_name + '.zip')
 
     artifacts = {}

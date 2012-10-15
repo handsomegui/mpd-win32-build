@@ -38,6 +38,8 @@ class PackageInfo:
             raise ValueError('Invalid package name ' + name)
 
         self.name = name
+        self.short_name = name.split('-')[0]
+        self.dist_name = _get_dist_name(name)
 
         self.script_dir = path.join(_package_dir, name)
         self.build_dir  = path.join(_build_dir, name)
@@ -139,6 +141,12 @@ def _check_name(target):
         if (not ch.isalnum()) and ch!='-' and ch!='_':
             return False
     return True
+    
+def _get_dist_name(name):
+    release_suffix = '-release'
+    if name.endswith(release_suffix):
+        return name[0:-len(release_suffix)]
+    return name
 
 def get(name):
     return PackageInfo(name)

@@ -129,7 +129,7 @@ def collect_binaries(patterns):
     _collect_artifacts(patterns.split(), path.join(_info.install_dir, 'bin'), 'bin')
 
 def collect_docs(patterns, source_dir=''):
-    collect_files(patterns, source_dir, path.join('doc', _info.name))
+    collect_files(patterns, source_dir, path.join('doc', _info.short_name))
 
 def collect_files(patterns, source_dir = '', target_dir = ''):
     source_dir_full = _info.build_dir
