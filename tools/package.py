@@ -103,8 +103,11 @@ def collect_version(src_file = 'configure.ac'):
     results = re.findall(r'AC_INIT\(.*, (.*), .*\)', text)
     if len(results) != 1:
         raise ValueError('Unable to extract version')
+    version = results[0]
+    if cmdutil.git_check(_info.build_dir):
+        version += '-' + cmdutil.git_short_rev(_info.build_dir)
     with open(_info.version_file, 'w') as f:
-        f.write(results[0])
+        f.write(version)
 
 def collect_system_libs(libgcc=False, libstdcxx=False):
     patterns = []
