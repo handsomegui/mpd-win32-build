@@ -1,6 +1,6 @@
 from package import *
 
-package('mpd')
+package('mpd-stable')
 
 clone('git://git.musicpd.org/master/mpd.git', 'v0.17.x')
 build(options='--enable-openal')

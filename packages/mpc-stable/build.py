@@ -1,6 +1,6 @@
 from package import *
 
-package('mpc')
+package('mpc-stable')
 
 clone('git://git.musicpd.org/master/mpc.git')
 build(libs='-lws2_32')
