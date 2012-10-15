@@ -5,33 +5,29 @@ from os import path
 
 _output_file = None
 
-def _exec(app, args, extra_env):
+def _exec(app, args, work_dir, extra_env, save_output):
     all_args = [app]
     if args:
         all_args.extend(args)
+    if _output_file and (not save_output):
+        all_args.extend(['>>' + _output_file, '2>&1'])
+    cmd = ' '.join(all_args)
+
     env = os.environ.copy()
     if extra_env:
         env.update(extra_env)
-    if _output_file:
-        all_args.extend(['>>' + _output_file, '2>&1'])
-    subprocess.check_call(' '.join(all_args), env=env, shell=True)
 
-def _exec_in_dir(app, args, work_dir, extra_env):
-    if work_dir:
-        old_cwd = os.getcwd()
-        os.chdir(work_dir)
-        try:
-            _exec(app, args, extra_env)
-        finally:
-            os.chdir(old_cwd)
+    if save_output:
+        return subprocess.check_output(cmd, cwd=work_dir, env=env, shell=True)
     else:
-        _exec(app, args, extra_env)
+        subprocess.check_call(cmd, cwd=work_dir, env=env, shell=True)
 
 def _build_exec_path(path_vars):
     paths = []
     for var in path_vars:
         value = config.get(var)
-        if value: paths.append(value)
+        if value:
+            paths.append(value)
     paths.append(os.environ['PATH'])
     return os.pathsep.join(paths)
 
@@ -45,8 +41,9 @@ def _add_exec_path(env, exec_path):
 def _native_exec_path():
     return _build_exec_path(['path'])
 
-def native_exec(app, args = None, work_dir = None, extra_env = None):
-    _exec_in_dir(app, args, work_dir, _add_exec_path(extra_env, _native_exec_path()))
+def native_exec(app, args = None, work_dir = None, extra_env = None, save_output = False):
+    extra_env = _add_exec_path(extra_env, _native_exec_path())
+    return _exec(app, args, work_dir, extra_env, save_output)
 
 if sys.platform.startswith('win32'):
 
@@ -55,8 +52,9 @@ if sys.platform.startswith('win32'):
     def _unix_exec_path():
         return _build_exec_path(['unix_path', 'path'])
 
-    def unix_exec(app, args = None, work_dir = None, extra_env = None):
-        _exec_in_dir(app, args, work_dir, _add_exec_path(extra_env, _unix_exec_path()))
+    def unix_exec(app, args = None, work_dir = None, extra_env = None, save_output = False):
+        extra_env = _add_exec_path(extra_env, _unix_exec_path())
+        return _exec(app, args, work_dir, extra_env, save_output)
 
     def native_make(args, work_dir):
         return native_exec('mingw32-make', args, work_dir)
@@ -77,8 +75,8 @@ else:
     def _unix_exec_path():
         return _native_exec_path()
 
-    def unix_exec(app, args = None, work_dir = None, extra_env = None):
-        return native_exec(app, args, work_dir, extra_env)
+    def unix_exec(app, args = None, work_dir = None, extra_env = None, save_output = False):
+        return native_exec(app, args, work_dir, extra_env, save_output)
 
     def native_make(args, work_dir):
         return native_exec('make', args, work_dir)
@@ -104,6 +102,11 @@ def git_check(target_dir):
     else:
         head_file = path.join(target_dir, '.git', 'HEAD')
     return path.exists(head_file)
+    
+def git_short_rev(target_dir):
+    args = ['rev-parse', '--short', 'HEAD']
+    output = native_exec('git', args, work_dir=target_dir, save_output=True)
+    return output.strip()
 
 def untar(file, target_dir = None, strip_root_dir = False):
     args = ['xf', to_unix_path(file)]
@@ -132,11 +135,9 @@ def which(command):
     return None
 
 def gcc_lib_dir(gcc):
-    process = subprocess.Popen([gcc, '-print-libgcc-file-name'], stdout=subprocess.PIPE)
-    stdout, stderr = process.communicate()
-    return path.dirname(path.normpath(stdout.strip()))
+    output = native_exec(gcc, ['-print-libgcc-file-name'], save_output=True)
+    return path.dirname(path.normpath(output.strip()))
 
 def redirect_output(output_file):
     global _output_file
     _output_file = output_file
-
