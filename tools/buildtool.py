@@ -4,10 +4,13 @@ import packageinfo, cmdutil, config, fsutil
 from os import path
 from textwrap import TextWrapper
 
+def join(strings):
+    return ' '.join(strings)
+
 def get_action(action):
     action_map = build_action_map()
     if not action in action_map:
-        raise ValueError('Unknown action ' + action)
+        raise ValueError('Unknown action: ' + action)
     return action_map[action]
 
 def wipe_dir(dir):
@@ -58,7 +61,7 @@ def do_rebuild(info):
 
 def do_pack(info):
     if not path.exists(info.version_file):
-        raise ValueError('Version file is not found: ' + info.version_file)
+        raise ValueError('Version file \'%s\' is not found' % info.version_file)
 
     version = fsutil.read_file(info.version_file).strip()
     dist_name = info.dist_name + '-' + version + '-win32-' + info.arch()
@@ -93,27 +96,27 @@ def do_generate_makefile(info):
     clean_targets = add_prefix('clean-', names)
 
     with open(info.make_file, 'w') as f:
-        f.write('export BUILDTOOL_PROFILE  := ' + config_profile + '\n')
-        f.write('export BUILDTOOL_BASE_DIR := ' + base_dir + '\n\n')
-        f.write('buildtool := ' + sys.executable + ' ' + path.abspath(__file__) + '\n\n')
+        f.write('export BUILDTOOL_PROFILE  := %s\n' % config_profile)
+        f.write('export BUILDTOOL_BASE_DIR := %s\n\n' % base_dir)
+        f.write('buildtool := %s %s\n\n' % (sys.executable, path.abspath(__file__)))
         f.write('build := $(buildtool) build\n')
         f.write('clean := $(buildtool) clean\n\n')
 
-        f.write('build: build-' + info.name + '\n\n')
-        f.write('clean: ' + ' '.join(clean_targets) + '\n\n')
+        f.write('build: build-%s\n\n' % info.name)
+        f.write('clean: %s\n\n' % join(clean_targets))
 
         for name, target in zip(names, build_targets):
             dependencies = add_prefix('build-', dependency_map[name])
-            f.write(target + ': ' + ' '.join(dependencies) + '\n')
-            f.write('\t@$(build) ' + name + '\n\n')
+            f.write('%s: %s\n' % (target, join(dependencies)))
+            f.write('\t@$(build) %s\n\n' % name)
 
         for name, target in zip(names, clean_targets):
-            f.write(target + ':\n')
-            f.write('\t@$(clean) ' + name + '\n\n')
+            f.write('%s:\n' % target)
+            f.write('\t@$(clean) %s\n\n' % name)
 
         f.write('.PHONY: build clean\n')
-        f.write('.PHONY: ' + ' '.join(build_targets) + '\n')
-        f.write('.PHONY: ' + ' '.join(clean_targets) + '\n')
+        f.write('.PHONY: %s\n' % join(build_targets))
+        f.write('.PHONY: %s\n' % join(clean_targets))
 
 def build_action_map():
     result = {}
@@ -124,7 +127,7 @@ def build_action_map():
     return result
 
 def fancy_list(prefix, items):
-    line = prefix + ' '.join(sorted(items))
+    line = prefix + join(sorted(items))
     wrapper = TextWrapper()
     wrapper.break_on_hyphens = False
     wrapper.subsequent_indent = ' ' * len(prefix)
@@ -152,7 +155,7 @@ def init():
 def run(action, target):
     action_func = get_action(action)
     info = packageinfo.get(target)
-    print 'Executing action \'' + action + '\' on target \'' + target + '\''
+    print 'Executing action \'%s\' on target \'%s\'' % (action, target)
     action_func(info)
 
 if __name__=='__main__':
