@@ -27,12 +27,6 @@ class PackageInfo:
             return []
         return fsutil.read_pairs(self.artifacts_file, '->')
 
-    def arch(self):
-        if not self.crossbuild:
-            return 'i686' # Magic constant
-        else:
-            return self.crossbuild_host.split('-')[0]
-
     def __init__(self, name):
         if not _check_name(name):
             raise ValueError('Invalid package name ' + name)
@@ -40,6 +34,7 @@ class PackageInfo:
         self.name = name
         self.short_name = name.split('-')[0]
         self.dist_name = _get_dist_name(name)
+        self.dist_host = _dist_host
 
         self.script_dir = path.join(_package_dir, name)
         self.build_dir  = path.join(_build_dir, name)
@@ -72,6 +67,7 @@ def _init_crossbuild():
     global _crossbuild
     global _crossbuild_build
     global _crossbuild_host
+    global _dist_host
 
     _crossbuild_build = config.get('build')
     _crossbuild_host = config.get('host')
@@ -82,6 +78,11 @@ def _init_crossbuild():
             raise ValueError('Cross-compiling but build triplet is not set')
         if not _crossbuild_host:
             raise ValueError('Cross-compiling but host triplet is not set')
+
+    if _crossbuild and (_crossbuild_host.startswith('amd64') or _crossbuild_host.startswith('x86_64')):
+        _dist_host = 'win64'
+    else:
+        _dist_host = 'win32'
 
 def _init_base_dir(base_dir):
     global _base_dir
