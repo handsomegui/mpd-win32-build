@@ -58,9 +58,9 @@ class PackageInfo:
         self.crossbuild_build = _crossbuild_build
         self.crossbuild_host = _crossbuild_host
 
-def init(base_dir):
+def init(base_dir, profile):
     _init_crossbuild()
-    _init_base_dir(base_dir)
+    _init_base_dir(base_dir, profile)
     _init_work_dir()
 
 def _init_crossbuild():
@@ -84,7 +84,7 @@ def _init_crossbuild():
     else:
         _dist_host = 'win32'
 
-def _init_base_dir(base_dir):
+def _init_base_dir(base_dir, profile):
     global _base_dir
     global _package_dir
     global _cache_dir
@@ -95,9 +95,14 @@ def _init_base_dir(base_dir):
 
     if not path.exists(_package_dir):
         raise ValueError('Packages directory is not found: ' + _package_dir)
+        
+    if profile:
+        work = 'work-' + profile
+    else:
+        work = 'work'
 
-    _work_dir = _resolve('work_dir', 'work')
     _cache_dir = _resolve('cache_dir', 'cache')
+    _work_dir = _resolve('work_dir', work)
 
     fsutil.make_dir(_work_dir)
     fsutil.make_dir(_cache_dir)

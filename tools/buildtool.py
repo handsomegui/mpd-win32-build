@@ -158,7 +158,7 @@ def init():
     base_dir = os.environ.get('BUILDTOOL_BASE_DIR', os.getcwd())
 
     config.init(config_profile)
-    packageinfo.init(base_dir)
+    packageinfo.init(base_dir, config_profile)
 
 def run(action, target):
     action_func = get_action(action)
