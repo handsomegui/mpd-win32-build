@@ -28,8 +28,8 @@ class PackageInfo:
         return fsutil.read_pairs(self.artifacts_file, '->')
 
     def __init__(self, name):
-        if not _check_name(name):
-            raise ValueError('Invalid package name ' + name)
+        if not valid_name(name):
+            raise ValueError('Invalid package name: ' + name)
 
         self.name = name
         self.short_name = name.split('-')[0]
@@ -140,10 +140,10 @@ def _adjust_path(p):
         raise ValueError('Path contains spaces, unable to continue: ' + result)
     return result
 
-def _check_name(target):
-    if target=='':
+def valid_name(name):
+    if name=='':
         return False
-    for ch in target:
+    for ch in name:
         if (not ch.isalnum()) and ch!='-' and ch!='_':
             return False
     return True

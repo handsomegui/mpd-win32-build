@@ -155,6 +155,9 @@ def init():
     global base_dir
 
     config_profile = os.environ.get('BUILDTOOL_PROFILE', '')
+    if config_profile and (not packageinfo.valid_name(config_profile)):
+        raise ValueError('Invalid profile name: ' + config_profile)
+    
     base_dir = os.environ.get('BUILDTOOL_BASE_DIR', os.getcwd())
 
     config.init(config_profile)
