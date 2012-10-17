@@ -40,3 +40,15 @@ def read_pairs(file, separator):
         pair = (items[0].rstrip(), items[1].lstrip())
         result.append(pair)
     return result
+
+
+def max_mtime(dir):
+    result = 0
+    for entry in os.listdir(dir):
+        name = path.join(dir, entry)
+        if path.isdir(name):
+            result = max(result, max_mtime(name))
+        else:
+            result = max(result, path.getmtime(name))
+    return result
+

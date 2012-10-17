@@ -30,9 +30,7 @@ def build_cmake(options = '', subdir = ''):
         cmdutil.native_exec('cmake', options, work_dir=cmake_dir)
         fsutil.write_marker(cmake_ok)
 
-    _abort_if('CONFIGURE_ONLY')
-    cmdutil.native_make([], work_dir=cmake_dir)
-    cmdutil.native_make(['install'], work_dir=cmake_dir)
+    _make_and_install(cmdutil.native_make, cmake_dir, build_dir)
 
 def build(static_lib = False, shared_lib = False, options = '', crossbuild_options=True, libs = '', cflags = '', subdir = ''):
     if static_lib and shared_lib:
@@ -55,9 +53,7 @@ def build(static_lib = False, shared_lib = False, options = '', crossbuild_optio
         cmdutil.unix_exec('sh', all_options, work_dir=build_dir, extra_env=env)
         fsutil.write_marker(configure_ok)
 
-    _abort_if('CONFIGURE_ONLY')
-    cmdutil.unix_make([], work_dir=build_dir)
-    cmdutil.unix_make(['install'], work_dir=build_dir)
+    _make_and_install(cmdutil.unix_make, build_dir, build_dir)
 
 def make(args):
     cmdutil.unix_make(args.split(), work_dir=_info.build_dir)
@@ -153,6 +149,17 @@ def _collect_artifacts(patterns, source_dir, target_dir):
                 f.write(source + ' -> ' + target + '\n')
                 found = True
     return found
+    
+def _make_and_install(maker, work_dir, build_dir):
+    stamp = path.join(build_dir, 'make.ok')
+    if path.exists(stamp):
+        run_make = fsutil.max_mtime(build_dir) > path.getmtime(stamp)
+    else:
+        run_make = True
+    if run_make:
+        maker([], work_dir=work_dir)
+        maker(['install'], work_dir=work_dir)
+        fsutil.write_marker(stamp)
 
 def _add_subpath(base, subpath):
     if subpath:
@@ -299,8 +306,3 @@ def _get_gcc_path():
     else:
         gcc = 'gcc'
     return cmdutil.which(gcc)
-
-def _abort_if(condition):
-    if os.environ.has_key(condition):
-        raise ValueError('Aborting build process because ' + condition + ' is set')
-
