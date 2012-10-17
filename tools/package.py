@@ -23,6 +23,7 @@ def build_cmake(options = '', subdir = ''):
     cmake_ok = path.join(build_dir, 'cmake.ok')
 
     if not path.exists(cmake_ok):
+        _log('configuring')
         if path.exists(cmake_dir):
             shutil.rmtree(cmake_dir)
         fsutil.make_dir(cmake_dir)
@@ -40,6 +41,7 @@ def build(static_lib = False, shared_lib = False, options = '', crossbuild_optio
     configure_ok = path.join(build_dir, 'configure.ok')
 
     if not path.exists(configure_ok):
+        _log('configuring')
         all_options = [_find_configure(build_dir), '--prefix=' + cmdutil.to_unix_path(_info.install_dir)]
         if _info.crossbuild and crossbuild_options:
             all_options.extend(['--build=' + _info.crossbuild_build, '--host=' + _info.crossbuild_host])
@@ -157,9 +159,13 @@ def _make_and_install(maker, work_dir, build_dir):
     else:
         run_make = True
     if run_make:
+        _log('making')
         maker([], work_dir=work_dir)
+        _log('installing')
         maker(['install'], work_dir=work_dir)
         fsutil.write_marker(stamp)
+    else:
+        _log('up to date')
 
 def _add_subpath(base, subpath):
     if subpath:
@@ -306,3 +312,7 @@ def _get_gcc_path():
     else:
         gcc = 'gcc'
     return cmdutil.which(gcc)
+    
+def _log(message):
+    print "buildtool: %s %s" % (_info.name.ljust(16), message)
+
