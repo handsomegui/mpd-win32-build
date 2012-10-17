@@ -17,7 +17,7 @@ def wipe_dir(dir):
     if not path.exists(dir):
         return
     if cmdutil.git_check(dir):
-        cmdutil.git('clean', ['-f', '-x', '-d'], work_dir=dir)
+        cmdutil.git('clean', ['-q', '-f', '-x', '-d'], work_dir=dir)
     else:
         shutil.rmtree(dir)
 
