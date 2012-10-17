@@ -166,7 +166,6 @@ def init():
 def run(action, target):
     action_func = get_action(action)
     info = packageinfo.get(target)
-    print 'Executing action \'%s\' on target \'%s\'' % (action, target)
     action_func(info)
 
 if __name__=='__main__':
