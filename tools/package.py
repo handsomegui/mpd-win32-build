@@ -133,10 +133,16 @@ def collect_docs(patterns, source_dir=''):
     collect_files(patterns, source_dir, path.join('doc', _info.short_name))
 
 def collect_files(patterns, source_dir = '', target_dir = ''):
-    source_dir_full = _info.build_dir
-    if source_dir:
-        source_dir_full = path.join(source_dir_full, source_dir)
+    source_dir_full = _add_subpath(_info.build_dir, source_dir)
     _collect_artifacts(patterns.split(), source_dir_full, target_dir)
+    
+def install(patterns, source_dir = '', target_dir = ''):
+    source_dir_full = _add_subpath(_info.build_dir, source_dir)
+    target_dir_full = _add_subpath(_info.install_dir, target_dir)
+    fsutil.make_dir(target_dir_full)
+    for pattern in patterns.split():
+        for source in glob.iglob(path.join(source_dir_full, pattern)):
+            shutil.copy(source, target_dir_full)
 
 def _collect_artifacts(patterns, source_dir, target_dir):
     found = False
@@ -147,6 +153,12 @@ def _collect_artifacts(patterns, source_dir, target_dir):
                 f.write(source + ' -> ' + target + '\n')
                 found = True
     return found
+
+def _add_subpath(base, subpath):
+    if subpath:
+        return path.join(base, subpath)
+    else:
+        return base
 
 def _fetch_archive(url, file = None):
     if file is None:
