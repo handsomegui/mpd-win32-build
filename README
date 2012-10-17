@@ -28,7 +28,7 @@ MinGW + msys - http://mingw.org
 You'll need to install the following packages with mingw-get:
 
   mingw32-autotools mingw32-base mingw32-gettext mingw32-gcc-g++
-  msys-base msys-coreutils msys-patch
+  msys-base msys-coreutils msys-patch msys-wget
   
 MinGW-w64 (optional) - http://mingw-w64.sourceforge.net
 Could be used instead of compiler from MinGW. You'll still need some tools from
@@ -85,7 +85,7 @@ Target is a package to deal with. Action is one of the following:
     Cleans specified target and all dependencies.
 
   rebuild-all
-    Shorcut for executing clean-all build-all.
+    Shortcut for executing clean-all build-all.
 
   generate-makefile
     Generates make file that could be used to build target and its dependencies
@@ -106,11 +106,11 @@ Examples:
 
   Building MPD package from latest released tarball:
 
-    $ buildtool build-all mpd-release
-    $ buildtool pack mpd-release
+    $ ./buildtool build-all mpd-release
+    $ ./buildtool pack mpd-release
 
   The same but use 4 build jobs at once:
 
-    $ buildtool generate-makefile mpd-release
+    $ ./buildtool generate-makefile mpd-release
     $ make -j 4 -f work/mpd-release.mk
-    $ buildtool pack mpd-release
+    $ ./buildtool pack mpd-release
