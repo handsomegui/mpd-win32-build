@@ -18,7 +18,7 @@ def init(info):
     cmdutil.redirect_output(_info.log_file)
 
 def build_cmake(options = '', subdir = ''):
-    build_dir = _get_build_dir(subdir)
+    build_dir = _add_subpath(_info.build_dir, subdir)
     cmake_dir = path.join(build_dir, 'cmake.build')
     cmake_ok = path.join(build_dir, 'cmake.ok')
 
@@ -38,7 +38,7 @@ def build(static_lib = False, shared_lib = False, options = '', crossbuild_optio
     if static_lib and shared_lib:
         raise ValueError('Both static_lib and shared_lib are specified')
 
-    build_dir = _get_build_dir(subdir)
+    build_dir = _add_subpath(_info.build_dir, subdir)
     configure_ok = path.join(build_dir, 'configure.ok')
 
     if not path.exists(configure_ok):
@@ -299,12 +299,6 @@ def _get_gcc_path():
     else:
         gcc = 'gcc'
     return cmdutil.which(gcc)
-
-def _get_build_dir(subdir):
-    if subdir:
-        return path.join(_info.build_dir, subdir)
-    else:
-        return _info.build_dir
 
 def _abort_if(condition):
     if os.environ.has_key(condition):
