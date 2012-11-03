@@ -98,7 +98,6 @@ options = """
 if info.crossbuild:
     options += ' --enable-cross-compile --arch=x86 --target-os=mingw32 --cross-prefix=' + info.crossbuild_host + '-'
 
-build(shared_lib=True, options=options, crossbuild_options=False)
+build(static_lib=True, options=options, crossbuild_options=False)
 
-collect_binaries('avcodec-*.dll avformat-*.dll avutil-*.dll')
 collect_docs('LICENSE COPYING.LGPLv2.1')

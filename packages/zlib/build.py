@@ -4,7 +4,7 @@ fetch('http://sourceforge.net/projects/libpng/files/zlib/1.2.7/zlib-1.2.7.tar.bz
 
 install_dir = cmdutil.to_unix_path(info.install_dir)
 
-make_args = ('install -fwin32/Makefile.gcc SHARED_MODE=1' +
+make_args = ('install -fwin32/Makefile.gcc SHARED_MODE=0' +
      ' INCLUDE_PATH=' + install_dir + '/include' +
      ' BINARY_PATH='  + install_dir + '/bin' +
      ' LIBRARY_PATH=' + install_dir + '/lib' +
@@ -15,5 +15,4 @@ if info.crossbuild:
 
 make(make_args)
 
-collect_binaries('zlib1.dll')
 collect_docs('README')

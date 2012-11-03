@@ -1,7 +1,6 @@
 fetch('http://www.wavpack.com/wavpack-4.60.1.tar.bz2')
 patch('Makefile.in')
 
-build(shared_lib=True)
+build(static_lib=True)
 
-collect_binaries('libwavpack-*.dll')
 collect_docs('license.txt')
