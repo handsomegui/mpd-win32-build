@@ -9,6 +9,11 @@ class PackageInfo:
         if not path.exists(deps_file):
             return []
         return fsutil.read_lines(deps_file)
+        
+    def _read_artifacts(self):
+        if not path.exists(self.artifacts_file):
+            return []
+        return fsutil.read_pairs(self.artifacts_file, '->')
 
     def dependency_map(self):
         result = {}
@@ -23,9 +28,16 @@ class PackageInfo:
         return result
 
     def artifacts(self):
-        if not path.exists(self.artifacts_file):
-            return []
-        return fsutil.read_pairs(self.artifacts_file, '->')
+        result = {}
+        for name in self.dependency_map().iterkeys():
+            for source, target in get(name)._read_artifacts():
+                result[source] = target
+        return result
+
+    def version(self):
+        if not path.exists(self.version_file):
+            raise ValueError('Version file \'%s\' is not found' % self.version_file)
+        return fsutil.read_file(self.version_file).strip()
 
     def __init__(self, name):
         if not valid_name(name):

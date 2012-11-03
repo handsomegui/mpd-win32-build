@@ -35,7 +35,7 @@ def git_in_build_dir(info, action):
 
 def run_make(target, info):
     cmdutil.native_make(['-f', info.make_file, target], None)
-    
+
 def visible_to_builder(obj):
     return (inspect.isfunction(obj)
       and (not obj.func_name.startswith('_'))
@@ -67,22 +67,48 @@ def do_rebuild(info):
     do_clean(info)
     do_build(info)
 
-def do_pack(info):
-    if not path.exists(info.version_file):
-        raise ValueError('Version file \'%s\' is not found' % info.version_file)
-
-    version = fsutil.read_file(info.version_file).strip()
+def do_pack_zip(info):
+    version = info.version()
+    artifacts = info.artifacts()
     dist_name = '%s-%s-%s' % (info.dist_name, version, info.dist_host)
     dist_file = path.join(info.dist_dir, dist_name + '.zip')
 
-    artifacts = {}
-    for name in info.dependency_map().iterkeys():
-        for source, target in packageinfo.get(name).artifacts():
-            artifacts[source] = path.join(dist_name, target)
-
     with zipfile.ZipFile(dist_file, mode='w', compression=zipfile.ZIP_DEFLATED) as z:
         for source, target in artifacts.iteritems():
-            z.write(source, target)
+            z.write(source, path.join(dist_name, target))
+
+def do_pack_nsis(info):
+    version = info.version()
+    artifacts = info.artifacts()
+
+    inst_dirs = {}
+    for source, target in artifacts.iteritems():
+        inst_dirs.setdefault(path.dirname(target), []).append(source)
+
+    setup_script = path.join(path.dirname(path.abspath(__file__)), 'setup.nsh')
+    actions_script = path.join(info.dist_dir, info.name + '.nsi')
+
+    with open(actions_script, 'w') as f:
+        f.write('!define AppId      "%s"\n' % info.name)
+        f.write('!define AppName    "%s"\n' % info.name)
+        f.write('!define AppVersion "%s"\n\n' % version)
+
+        f.write('!macro INSTALL_FILES\n')
+        for dir, files in inst_dirs.iteritems():
+            f.write('SetOutPath "$INSTDIR\\%s"\n' % dir)
+            for file in files:
+                f.write('File "%s"\n' % file)
+        f.write('!macroend\n\n')
+
+        f.write('!macro UNINSTALL_FILES\n')
+        for file in artifacts.itervalues():
+            f.write('Delete "$INSTDIR\\%s"\n' % file)
+        for dir in inst_dirs.iterkeys():
+            f.write('RMDir "$INSTDIR\\%s"\n' % dir)
+        f.write('!macroend\n\n')
+
+        f.write('!include "%s"\n' % setup_script)
+    cmdutil.native_exec('makensis', ['-V2', actions_script])
 
 def do_build_all(info):
     do_generate_makefile(info)

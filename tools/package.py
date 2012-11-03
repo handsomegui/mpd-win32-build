@@ -148,7 +148,7 @@ def _collect_artifacts(patterns, source_dir, target_dir):
         for pattern in patterns:
             for source in glob.iglob(path.join(source_dir, pattern)):
                 target = path.join(target_dir, path.basename(source))
-                f.write(source + ' -> ' + target + '\n')
+                f.write('%s -> %s\n' % (path.normpath(source), target))
                 found = True
     return found
 
