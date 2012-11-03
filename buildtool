@@ -1,2 +1,2 @@
 #!/bin/sh
-python $(dirname $0)/tools/buildtool.py $*
+exec python $(dirname $0)/tools/buildtool.py $*
