@@ -10,13 +10,12 @@ def init(profile):
     global _config_vars
 
     config_dir = os.environ.get('BUILDTOOL_CONFIG_DIR', '')
-    config_files = ['buildtool.conf']
-
     if not config_dir:
         config_dir = path.join(path.expanduser('~'), '.buildtool')
 
+    config_files = ['default.conf']
     if profile:
-        config_files.append('buildtool.%s.conf' % profile)
+        config_files.append('%s.conf' % profile)
 
     _config_vars = {}
     for file in config_files:

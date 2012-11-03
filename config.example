@@ -1,8 +1,8 @@
 # This is an example of buildtool configuration file.
 # To make it work copy it to one of the possible locations:
 #
-#   $BUILDTOOL_CONFIG_DIR/buildtool.conf
-#   $BUILDTOOL_CONFIG_DIR/buildtool.$BUILDTOOL_PROFILE.conf
+#   $BUILDTOOL_CONFIG_DIR/default.conf
+#   $BUILDTOOL_CONFIG_DIR/$BUILDTOOL_PROFILE.conf
 #
 # If $BUILDTOOL_CONFIG_DIR is not defined then $HOME/.buildtool is assumed.
 # Configuration settings are taken from both files and merged in the specified order.
@@ -13,7 +13,7 @@
 # Sets work directory, if not absolute it is assumed to be relative to base directory.
 # work_dir = work
 
-# Defines any CFLAGS to pass to configure script .
+# Defines any CFLAGS to pass to configure script.
 # cflags = -Os
 
 # Defines any LIBS to pass to configure script.
