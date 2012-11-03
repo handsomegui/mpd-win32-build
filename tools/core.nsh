@@ -3,7 +3,7 @@
 ##### Commonly used strings
 !define GraphicsDir "${NSISDIR}\Contrib\Graphics"
 !define UninstKey   "Software\Microsoft\Windows\CurrentVersion\Uninstall\${AppName}"
-!define UninstFile  "uninst-${AppId}.exe"
+!define UninstFile  "uninstall.exe"
 
 ##### Compiler configuration
 OutFile       "${AppId}-${AppVersion}-setup.exe"

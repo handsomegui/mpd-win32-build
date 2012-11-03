@@ -85,11 +85,11 @@ def do_pack_nsis(info):
     for source, target in artifacts.iteritems():
         inst_dirs.setdefault(path.dirname(target), []).append(source)
 
-    setup_script = path.join(path.dirname(path.abspath(__file__)), 'setup.nsh')
-    actions_script = path.join(info.dist_dir, info.name + '.nsi')
+    core_script = path.join(path.dirname(path.abspath(__file__)), 'core.nsh')
+    installer_script = path.join(info.dist_dir, info.name + '.nsi')
 
-    with open(actions_script, 'w') as f:
-        f.write('!define AppId      "%s"\n' % info.name)
+    with open(installer_script, 'w') as f:
+        f.write('!define AppId      "%s"\n' % info.dist_name)
         f.write('!define AppName    "%s"\n' % info.name)
         f.write('!define AppVersion "%s"\n\n' % version)
 
@@ -107,8 +107,8 @@ def do_pack_nsis(info):
             f.write('RMDir "$INSTDIR\\%s"\n' % dir)
         f.write('!macroend\n\n')
 
-        f.write('!include "%s"\n' % setup_script)
-    cmdutil.native_exec('makensis', ['-V2', actions_script])
+        f.write('!include "%s"\n' % core_script)
+    cmdutil.native_exec('makensis', ['-V2', installer_script])
 
 def do_build_all(info):
     do_generate_makefile(info)
