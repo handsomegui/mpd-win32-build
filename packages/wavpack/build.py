@@ -3,4 +3,4 @@ patch('Makefile.in')
 
 build(static_lib=True)
 
-collect_docs('license.txt')
+collect_licenses('license.txt')

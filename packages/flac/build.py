@@ -5,4 +5,4 @@ patch('src/share/utf8/utf8.c')
 
 build(static_lib=True)
 
-collect_docs('AUTHORS COPYING.Xiph')
+collect_licenses('AUTHORS COPYING.Xiph')

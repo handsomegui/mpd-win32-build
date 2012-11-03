@@ -100,4 +100,4 @@ if info.crossbuild:
 
 build(static_lib=True, options=options, crossbuild_options=False)
 
-collect_docs('LICENSE COPYING.LGPLv2.1')
+collect_licenses('LICENSE COPYING.LGPLv2.1')

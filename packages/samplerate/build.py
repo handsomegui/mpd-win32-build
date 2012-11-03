@@ -3,4 +3,4 @@ remove('make.bat') # Remove make.bat because it gets executed instead of make.ex
 
 build(static_lib=True, options='--disable-sndfile')
 
-collect_docs('COPYING AUTHORS')
+collect_licenses('COPYING AUTHORS')

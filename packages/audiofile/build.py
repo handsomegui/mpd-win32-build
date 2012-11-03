@@ -4,4 +4,4 @@ build(shared_lib=True)
 
 collect_system_libs(libgcc=True, libstdcxx=True)
 collect_binaries('libaudiofile-*.dll')
-collect_docs('ACKNOWLEDGEMENTS AUTHORS COPYING README')
+collect_licenses('ACKNOWLEDGEMENTS AUTHORS COPYING README')

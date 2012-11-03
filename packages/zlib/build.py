@@ -15,4 +15,4 @@ if info.crossbuild:
 
 make(make_args)
 
-collect_docs('README')
+collect_licenses('README')

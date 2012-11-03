@@ -128,7 +128,11 @@ def collect_binaries(patterns):
     _collect_artifacts(patterns.split(), path.join(_info.install_dir, 'bin'), 'bin')
 
 def collect_docs(patterns, source_dir=''):
-    collect_files(patterns, source_dir, path.join('doc', _info.short_name))
+    collect_files(patterns, source_dir, 'doc')
+
+def collect_licenses(patterns, source_dir=''):
+    target_dir = path.join('doc/licenses', _info.short_name)
+    collect_files(patterns, source_dir, target_dir)
 
 def collect_files(patterns, source_dir = '', target_dir = ''):
     source_dir_full = _add_subpath(_info.build_dir, source_dir)
@@ -148,7 +152,7 @@ def _collect_artifacts(patterns, source_dir, target_dir):
         for pattern in patterns:
             for source in glob.iglob(path.join(source_dir, pattern)):
                 target = path.join(target_dir, path.basename(source))
-                f.write('%s -> %s\n' % (path.normpath(source), target))
+                f.write('%s -> %s\n' % (path.normpath(source), path.normpath(target)))
                 found = True
     return found
 

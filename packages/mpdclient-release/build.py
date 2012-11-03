@@ -2,4 +2,4 @@ fetch('http://sourceforge.net/projects/musicpd/files/libmpdclient/2.7/libmpdclie
 
 build(static_lib=True)
 
-collect_docs('AUTHORS COPYING NEWS README')
+collect_licenses('AUTHORS COPYING NEWS README')

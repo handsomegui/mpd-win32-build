@@ -5,5 +5,5 @@ patch('Alc/alcConfig.c')
 build_cmake(options='-DMMDEVAPI=OFF -DEXAMPLES=OFF')
 
 collect_binaries('OpenAL32.dll')
-collect_docs('COPYING README')
-collect_files('alsoftrc.sample', target_dir='conf')
+collect_licenses('COPYING README')
+collect_docs('alsoftrc.sample')

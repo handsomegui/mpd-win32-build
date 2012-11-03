@@ -2,4 +2,4 @@ fetch('http://sourceforge.net/projects/libmms/files/libmms/0.6.2/libmms-0.6.2.ta
 
 build(static_lib=True)
 
-collect_docs('COPYING.LIB README AUTHORS')
+collect_licenses('COPYING.LIB README AUTHORS')

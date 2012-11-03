@@ -5,4 +5,4 @@ patch('gthread/Makefile.in', patch_file='gthread_Makefile.in.patch')
 
 build(static_lib=True)
 
-collect_docs('COPYING README')
+collect_licenses('COPYING README')
