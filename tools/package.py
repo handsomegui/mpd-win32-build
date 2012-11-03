@@ -35,7 +35,7 @@ def build_cmake(options = '', subdir = ''):
 
 def build(static_lib = False, shared_lib = False, options = '', crossbuild_options=True, libs = '', cflags = '', subdir = ''):
     if static_lib and shared_lib:
-        raise ValueError('Both static_lib and shared_lib are specified')
+        raise ValueError('Both static_lib and shared_lib options are specified')
 
     build_dir = _add_subpath(_info.build_dir, subdir)
     configure_ok = path.join(build_dir, 'configure.ok')
@@ -86,7 +86,7 @@ def fetch(url, rev = None, file = None):
     fsutil.make_dir(_info.cache_dir)
     if url.startswith('git://') or url.endswith('.git'):
         if rev is None:
-            raise ValueError('Revisition to fetch should be specified')
+            raise ValueError('Revision to fetch should be specified')
         _fetch_git(url, rev)
     else:
         _fetch_archive(url, file)
