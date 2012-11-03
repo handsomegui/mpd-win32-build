@@ -151,7 +151,7 @@ def _collect_artifacts(patterns, source_dir, target_dir):
                 f.write(source + ' -> ' + target + '\n')
                 found = True
     return found
-    
+
 def _make_and_install(maker, work_dir, build_dir):
     stamp = path.join(build_dir, 'make.ok')
     if path.exists(stamp):
@@ -278,6 +278,7 @@ def _untar_to_build_dir(tar_file, strip_root_dir = False):
 def _git_clone_once(url, target_dir, mirror = False):
     if cmdutil.git_check(target_dir):
         return False
+    _log('cloning')
     if mirror:
         cmdutil.git('clone', ['--mirror', url, target_dir])
     else:
@@ -296,6 +297,7 @@ def _guess_name(url):
 def _download_once(url, file):
     if path.exists(file):
         return False
+    _log('downloading')
     cmdutil.wget(url, file)
     return True
 
@@ -315,4 +317,3 @@ def _get_gcc_path():
     
 def _log(message):
     print "buildtool: %s %s" % (_info.name.ljust(16), message)
-
