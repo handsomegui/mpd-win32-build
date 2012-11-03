@@ -7,7 +7,10 @@ from textwrap import TextWrapper
 def join(strings):
     return ' '.join(strings)
 
-def get_action(action):
+def add_prefix(prefix, items):
+    return map(lambda s: prefix + s, items)
+
+def get_action_func(action):
     action_map = build_action_map()
     if not action in action_map:
         raise ValueError('Unknown action: ' + action)
@@ -20,9 +23,6 @@ def wipe_dir(dir):
         cmdutil.git('clean', ['-q', '-f', '-x', '-d'], work_dir=dir)
     else:
         shutil.rmtree(dir)
-
-def add_prefix(prefix, items):
-    return map(lambda s: prefix + s, items)
 
 def git_fetch_mirror(info):
     cached_repo = path.join(info.cache_dir, 'mirror.git')
@@ -164,7 +164,7 @@ def init():
     packageinfo.init(base_dir, config_profile)
 
 def run(action, target):
-    action_func = get_action(action)
+    action_func = get_action_func(action)
     info = packageinfo.get(target)
     action_func(info)
 
