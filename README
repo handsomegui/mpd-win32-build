@@ -8,10 +8,11 @@ for other autotools/cmake based projects.
 Required tools on Linux
 =======================
 
-To build on Linux you'll need the following tools (Ubuntu 12.04 packages as example):
+To build on Linux you'll need the following tools
+(Ubuntu 12.04 packages are provided as example):
 
-  autotools-dev cmake g++-mingw-w64-i686 gettext git libglib2.0-dev
-  make pkg-config python2.7 wget yasm
+  autoconf automake autotools-dev cmake g++-mingw-w64-i686 gettext git
+  libglib2.0-dev libtool make pkg-config python2.7 wget yasm
 
 Required tools on Windows
 =========================
