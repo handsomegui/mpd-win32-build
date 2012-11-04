@@ -35,7 +35,7 @@ def read_lines(file):
     with open(file, 'r') as f:
         for line in f:
             sline = line.strip()
-            if sline.startswith('include'):
+            if sline.startswith('!include'):
                 result.extend(read_lines(_resolve_include(file, sline)))
             elif sline and not sline.startswith('#'):
                 result.append(sline)
