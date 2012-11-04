@@ -5,7 +5,7 @@ from os import path
 
 class PackageInfo:
     def _read_dependencies(self):
-        deps_file = self._resolve_script('depends.txt', True)
+        deps_file = self._resolve_script('depends.txt')
         if not deps_file:
             return []
         return fsutil.read_lines(deps_file)
@@ -15,18 +15,12 @@ class PackageInfo:
             return []
         return fsutil.read_pairs(self.artifacts_file, '->')
 
-    def _resolve_script(self, name, allow_non_variant):
-        files = []
+    def _resolve_script(self, name):
         if self.variant_name:
-            files.append(self.variant_name + '-' + name)
-            if allow_non_variant:
-                files.append(name)
-        else:
-            files.append(name)
-        for f in files:
-            full_path = path.join(self.script_dir, f)
-            if path.exists(full_path):
-                return full_path
+            name = self.variant_name + '-' + name
+        file = path.join(self.script_dir, name)
+        if path.exists(file):
+            return file
         return None
 
     def dependency_map(self):
@@ -70,7 +64,7 @@ class PackageInfo:
         if not path.exists(self.script_dir):
             raise ValueError('Directory is not found for package ' + name)
 
-        self.build_file = self._resolve_script('build.py', False)
+        self.build_file = self._resolve_script('build.py')
         self.make_file = path.join(_work_dir, name + '.mk')
         self.log_file = path.join(_log_dir, name + '.log')
         self.artifacts_file = path.join(self.install_dir, 'artifacts.txt')
@@ -166,7 +160,7 @@ def _adjust_path(p):
     return result
 
 def valid_name(name):
-    if name=='':
+    if name == '':
         return False
     for ch in name:
         if (not ch.isalnum()) and ch!='-' and ch!='_':

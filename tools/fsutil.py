@@ -2,6 +2,14 @@ import os, glob
 
 from os import path
 
+def _resolve_include(src, line):
+    items = line.split(None, 1)
+    if len(items) != 2:
+        raise ValueError('Invalid include directive: ' + line)
+    file = items[1].lstrip()
+    ext = path.splitext(src)[1]
+    return path.normpath(path.join(path.dirname(src), file + ext))
+
 def make_dir(d):
     if not path.exists(d):
         os.makedirs(d)
@@ -27,7 +35,9 @@ def read_lines(file):
     with open(file, 'r') as f:
         for line in f:
             sline = line.strip()
-            if sline and not sline.startswith('#'):
+            if sline.startswith('include'):
+                result.extend(read_lines(_resolve_include(file, sline)))
+            elif sline and not sline.startswith('#'):
                 result.append(sline)
     return result
 
