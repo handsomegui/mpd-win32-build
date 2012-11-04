@@ -2,11 +2,13 @@ import os, glob
 
 from os import path
 
-def _resolve_include(src, line):
+def _strip_include(line):
     items = line.split(None, 1)
     if len(items) != 2:
         raise ValueError('Invalid include directive: ' + line)
-    file = items[1].lstrip()
+    return items[1].lstrip()
+
+def resolve_include(src, file):
     ext = path.splitext(src)[1]
     return path.normpath(path.join(path.dirname(src), file + ext))
 
@@ -36,7 +38,8 @@ def read_lines(file):
         for line in f:
             sline = line.strip()
             if sline.startswith('!include'):
-                result.extend(read_lines(_resolve_include(file, sline)))
+                inc_file = resolve_include(file, _strip_include(sline))
+                result.extend(read_lines(inc_file))
             elif sline and not sline.startswith('#'):
                 result.append(sline)
     return result
@@ -50,7 +53,6 @@ def read_pairs(file, separator):
         pair = (items[0].rstrip(), items[1].lstrip())
         result.append(pair)
     return result
-
 
 def max_mtime(dir):
     result = 0
