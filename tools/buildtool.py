@@ -4,8 +4,15 @@ import packagebuild, packageinfo, cmdutil, config, fsutil
 from os import path
 from textwrap import TextWrapper
 
-def join(strings):
-    return ' '.join(strings)
+def join(items):
+    return ' '.join(items)
+
+def wrap(prefix, items):
+    line = prefix + join(sorted(items))
+    wrapper = TextWrapper()
+    wrapper.break_on_hyphens = False
+    wrapper.subsequent_indent = ' ' * len(prefix)
+    return wrapper.fill(line)
 
 def add_prefix(prefix, items):
     return map(lambda s: prefix + s, items)
@@ -16,7 +23,7 @@ def get_action_func(action):
         raise ValueError('Unknown action: ' + action)
     return action_map[action]
 
-def wipe_dir(dir):
+def clean_dir(dir):
     if not path.exists(dir):
         return
     if cmdutil.git_check(dir):
@@ -48,12 +55,12 @@ def do_fetch_source(info):
     git_in_build_dir(info, 'fetch')
 
 def do_clean(info):
-    wipe_dir(info.build_dir)
-    wipe_dir(info.install_dir)
+    clean_dir(info.build_dir)
+    clean_dir(info.install_dir)
     fsutil.safe_remove(info.log_file)
 
 def do_clean_cache(info):
-    wipe_dir(info.cache_dir)
+    clean_dir(info.cache_dir)
 
 def do_rebuild(info):
     do_clean(info)
@@ -152,21 +159,14 @@ def build_action_map():
             result[real_name] = symbol
     return result
 
-def fancy_list(prefix, items):
-    line = prefix + join(sorted(items))
-    wrapper = TextWrapper()
-    wrapper.break_on_hyphens = False
-    wrapper.subsequent_indent = ' ' * len(prefix)
-    return wrapper.fill(line)
-
 def show_usage():
     print 'buildtool -- perform build action on specified target'
     print
     print 'Usage:   buildtool [action] [target]'
     print
-    print fancy_list('Actions: ', build_action_map().keys())
+    print wrap('Actions: ', build_action_map().keys())
     print
-    print fancy_list('Targets: ', packageinfo.get_packages())
+    print wrap('Targets: ', packageinfo.get_packages())
 
 def init():
     global config_profile
