@@ -63,4 +63,3 @@ def max_mtime(dir):
         else:
             result = max(result, path.getmtime(name))
     return result
-
