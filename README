@@ -96,7 +96,7 @@ Target is a package to deal with. Action is one of the following:
   pull-source
     Do 'git pull' on each repository that is used by specified target.
 
-  pack
+  pack-zip
     Pack specified target and all dependencies to .zip file ready for releasing.
     Target and dependencies are assumed to be built.
 

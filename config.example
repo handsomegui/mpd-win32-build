@@ -1,11 +1,14 @@
 # This is an example of buildtool configuration file.
-# To make it work copy it to one of the possible locations:
 #
-#   $BUILDTOOL_CONFIG_DIR/default.conf
+# To make it work copy it to the following location:
+#
 #   $BUILDTOOL_CONFIG_DIR/$BUILDTOOL_PROFILE.conf
 #
-# If $BUILDTOOL_CONFIG_DIR is not defined then $HOME/.buildtool is assumed.
-# Configuration settings are taken from both files and merged in the specified order.
+# If $BUILDTOOL_CONFIG_DIR is not defined then '~/.buildtool' is assumed.
+# If $BUILDTOOL_PROFILE is not defined then 'default' is assumed.
+#
+# This means '~/.buildtool/default.conf' is the ultimate default.
+#
 
 # Sets cache directory, if not absolute it is assumed to be relative to base directory.
 # cache_dir = cache
@@ -40,4 +43,10 @@
 # Defines host triplet to pass to configure script.
 # host = i686-w64-mingw32
 
-# build and host are mandatory if you're doing cross-compilation otherwise leave them undefined.
+# build and host are mandatory if you're doing cross-compilation
+# otherwise leave them undefined.
+
+# Configuration options could be reused by using include directives.
+# File to include is assumed to be in the same directory
+# and should have the same extension as current file.
+# !include default
