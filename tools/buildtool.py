@@ -93,7 +93,7 @@ def do_pack_nsis(info):
 
     with open(output_script, 'w') as f:
         f.write('OutFile "%s"\n\n' % output_installer)
-        f.write('!macro INSTALL_FILES\n')
+        f.write('!macro InstallFiles\n')
         for dir, files in inst_dirs.iteritems():
             f.write('SetOutPath "$INSTDIR\\%s"\n' % dir)
             for file in files:

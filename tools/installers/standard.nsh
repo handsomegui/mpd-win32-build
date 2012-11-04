@@ -36,7 +36,7 @@ RequestExecutionLevel admin
 
 ###### Installation
 Section
-    !insertmacro INSTALL_FILES
+    !insertmacro InstallFiles
     WriteUninstaller "$INSTDIR\${UninstFile}"
     WriteRegStr   HKLM "${UninstKey}" "DisplayName"       "${AppName}"
     WriteRegStr   HKLM "${UninstKey}" "DisplayAppVersion" "${AppVersion}"
