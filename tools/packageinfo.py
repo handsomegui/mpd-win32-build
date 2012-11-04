@@ -5,15 +5,29 @@ from os import path
 
 class PackageInfo:
     def _read_dependencies(self):
-        deps_file = path.join(self.script_dir, 'depends.txt')
-        if not path.exists(deps_file):
+        deps_file = self._resolve_script('depends.txt', True)
+        if not deps_file:
             return []
         return fsutil.read_lines(deps_file)
-        
+
     def _read_artifacts(self):
         if not path.exists(self.artifacts_file):
             return []
         return fsutil.read_pairs(self.artifacts_file, '->')
+
+    def _resolve_script(self, name, allow_non_variant):
+        files = []
+        if self.variant_name:
+            files.append(self.variant_name + '-' + name)
+            if allow_non_variant:
+                files.append(name)
+        else:
+            files.append(name)
+        for f in files:
+            full_path = path.join(self.script_dir, f)
+            if path.exists(full_path):
+                return full_path
+        return None
 
     def dependency_map(self):
         result = {}
@@ -44,11 +58,10 @@ class PackageInfo:
             raise ValueError('Invalid package name: ' + name)
 
         self.name = name
-        self.short_name = name.split('-')[0]
-        self.dist_name = _get_dist_name(name)
+        self.short_name, self.variant_name, self.dist_name = _decode_name(name)
         self.dist_host = _dist_host
 
-        self.script_dir = path.join(_package_dir, name)
+        self.script_dir = path.join(_package_dir, self.short_name)
         self.build_dir  = path.join(_build_dir, name)
         self.install_dir = path.join(_install_dir, name)
         self.cache_dir  = path.join(_cache_dir, name)
@@ -57,13 +70,13 @@ class PackageInfo:
         if not path.exists(self.script_dir):
             raise ValueError('Directory is not found for package ' + name)
 
-        self.build_file = path.join(self.script_dir, 'build.py')
+        self.build_file = self._resolve_script('build.py', False)
         self.make_file = path.join(_work_dir, name + '.mk')
         self.log_file = path.join(_log_dir, name + '.log')
         self.artifacts_file = path.join(self.install_dir, 'artifacts.txt')
         self.version_file = path.join(self.install_dir, 'version.txt')
 
-        if not path.exists(self.build_file):
+        if not self.build_file:
             raise ValueError('Builder is not found for package ' + name)
 
         self.crossbuild = _crossbuild
@@ -113,8 +126,8 @@ def _init_base_dir(base_dir, profile):
     else:
         work = 'work'
 
-    _cache_dir = _resolve('cache_dir', 'cache')
-    _work_dir = _resolve('work_dir', work)
+    _cache_dir = _resolve_dir('cache_dir', 'cache')
+    _work_dir = _resolve_dir('work_dir', work)
 
     fsutil.make_dir(_work_dir)
     fsutil.make_dir(_cache_dir)
@@ -135,7 +148,7 @@ def _init_work_dir():
     fsutil.make_dir(_install_dir)
     fsutil.make_dir(_log_dir)
 
-def _resolve(var_name, fallback):
+def _resolve_dir(var_name, fallback):
     user_dir = config.get(var_name)
     if user_dir:
         if path.isabs(user_dir):
@@ -160,11 +173,18 @@ def valid_name(name):
             return False
     return True
     
-def _get_dist_name(name):
-    release_suffix = '-release'
-    if name.endswith(release_suffix):
-        return name[0:-len(release_suffix)]
-    return name
+def _decode_name(name):
+    items = name.split('-', 1)
+    short_name = items[0]
+    if len(items) > 1:
+        variant_name = items[1]
+    else:
+        variant_name = ''
+    if variant_name != 'release':
+        dist_name = name
+    else:
+        dist_name = short_name
+    return short_name, variant_name, dist_name
 
 def get(name):
     return PackageInfo(name)
