@@ -9,17 +9,17 @@ def get(name, fallback = ''):
 def init(profile):
     global _config_vars
 
-    config_dir = os.environ.get('BUILDTOOL_CONFIG_DIR', '')
-    if not config_dir:
-        config_dir = path.join(path.expanduser('~'), '.buildtool')
+    dir = os.environ.get('BUILDTOOL_CONFIG_DIR', '')
+    if not dir:
+        dir = path.join(path.expanduser('~'), '.buildtool')
+    if not profile:
+        profile = 'default'
+    config = path.join(dir, profile + '.conf')
 
-    config_files = ['default.conf']
-    if profile:
-        config_files.append('%s.conf' % profile)
-
-    _config_vars = {}
-    for file in config_files:
-        _merge_config(_config_vars, _read_config(path.join(config_dir, file)))
+    if path.exists(config):
+        _config_vars = _load_config(config)
+    else:
+        _config_vars = {}
 
 def _get_separator(option):
     if option.endswith('path'):
@@ -27,22 +27,14 @@ def _get_separator(option):
     else:
         return ' '
 
-def _merge_config(target, other):
-    for key, value in other:
+def _load_config(file):
+    result = {}
+    for raw_key, value in fsutil.read_pairs(file, '='):
+        key = raw_key.lower()
         if key.endswith('+'):
-            real_key = key.rstrip('+').rstrip()
-            if real_key in target:
-                target[real_key] += _get_separator(real_key) + value
-            else:
-                target[real_key] = value
-        else:
-            target[key] = value
-
-def _read_config(config_file):
-    if not path.exists(config_file):
-        return []
-    result = []
-    for key, value in fsutil.read_pairs(config_file, '='):
-        entry = (key.lower(), value)
-        result.append(entry)
+            key = key.rstrip('+').rstrip()
+            if key in result:
+                result[key] += _get_separator(key) + value
+                continue
+        result[key] = value
     return result
