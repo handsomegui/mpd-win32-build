@@ -1,9 +1,9 @@
-import os, glob, shutil, urllib, re
+import sys, os, glob, shutil, urllib, re, inspect
 import packageinfo, cmdutil, config, fsutil
 
 from os import path
 
-def init(info):
+def run(info):
     global _info
 
     _info = info
@@ -16,6 +16,11 @@ def init(info):
     fsutil.safe_remove(_info.log_file)
 
     cmdutil.redirect_output(_info.log_file)
+    execfile(_info.build_file, _get_builder_symbols())
+
+def include(script):
+    file = fsutil.resolve_include(_info.build_file, script)
+    execfile(file, _get_builder_symbols())
 
 def build_cmake(options = '', subdir = ''):
     build_dir = _add_subpath(_info.build_dir, subdir)
@@ -321,3 +326,14 @@ def _get_gcc_path():
     
 def _log(message):
     print "buildtool: %s %s" % (_info.name.ljust(16), message)
+
+def _is_builder_symbol(obj):
+    return (inspect.isfunction(obj)
+      and (not obj.func_name.startswith('_'))
+      and (obj.func_name != 'run'))
+
+def _get_builder_symbols():
+    this_module = sys.modules[__name__]
+    result = dict(inspect.getmembers(this_module, _is_builder_symbol))
+    result['info'] = _info
+    return result

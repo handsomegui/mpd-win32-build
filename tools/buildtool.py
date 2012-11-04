@@ -1,5 +1,5 @@
-import os, sys, shutil, inspect, zipfile
-import package, packageinfo, cmdutil, config, fsutil
+import os, sys, shutil, zipfile
+import packagebuild, packageinfo, cmdutil, config, fsutil
 
 from os import path
 from textwrap import TextWrapper
@@ -36,16 +36,8 @@ def git_in_build_dir(info, action):
 def run_make(target, info):
     cmdutil.native_make(['-f', info.make_file, target], None)
 
-def visible_to_builder(obj):
-    return (inspect.isfunction(obj)
-      and (not obj.func_name.startswith('_'))
-      and obj.func_name!='init')
-
 def do_build(info):
-    package.init(info)
-    symbols = dict(inspect.getmembers(package, visible_to_builder))
-    symbols['info'] = info
-    execfile(info.build_file, symbols)
+    packagebuild.run(info)
 
 def do_pull_source(info):
     git_fetch_mirror(info)

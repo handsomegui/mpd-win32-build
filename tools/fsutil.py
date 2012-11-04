@@ -10,7 +10,10 @@ def _strip_include(line):
 
 def resolve_include(src, file):
     ext = path.splitext(src)[1]
-    return path.normpath(path.join(path.dirname(src), file + ext))
+    result = path.normpath(path.join(path.dirname(src), file + ext))
+    if not path.exists(result):
+        raise ValueError('Included file is not found: ' + result)
+    return result
 
 def make_dir(d):
     if not path.exists(d):
