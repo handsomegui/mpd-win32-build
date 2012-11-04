@@ -69,6 +69,7 @@ class PackageInfo:
         self.log_file = path.join(_log_dir, name + '.log')
         self.artifacts_file = path.join(self.install_dir, 'artifacts.txt')
         self.version_file = path.join(self.install_dir, 'version.txt')
+        self.installer_file = self._resolve_script('installer.nsi')
 
         if not self.build_file:
             raise ValueError('Builder is not found for package ' + name)

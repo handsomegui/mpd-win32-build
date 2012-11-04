@@ -77,21 +77,22 @@ def do_pack_zip(info):
             z.write(source, path.join(dist_name, target))
 
 def do_pack_nsis(info):
+    if not info.installer_file:
+        raise ValueError('Installer script is not found: ' + info.installer_file)
+
     version = info.version()
     artifacts = info.artifacts()
+
+    system_dir = path.join(path.dirname(path.abspath(__file__)), 'installers')
+    output_script = path.join(info.install_dir, 'installer.nsi')
+    output_installer = path.join(info.dist_dir, "%s-%s-setup.exe" % (info.dist_name, version))
 
     inst_dirs = {}
     for source, target in artifacts.iteritems():
         inst_dirs.setdefault(path.dirname(target), []).append(source)
 
-    core_script = path.join(path.dirname(path.abspath(__file__)), 'core.nsh')
-    installer_script = path.join(info.dist_dir, info.name + '.nsi')
-
-    with open(installer_script, 'w') as f:
-        f.write('!define AppId      "%s"\n' % info.dist_name)
-        f.write('!define AppName    "%s"\n' % info.name)
-        f.write('!define AppVersion "%s"\n\n' % version)
-
+    with open(output_script, 'w') as f:
+        f.write('OutFile "%s"\n\n' % output_installer)
         f.write('!macro INSTALL_FILES\n')
         for dir, files in inst_dirs.iteritems():
             f.write('SetOutPath "$INSTDIR\\%s"\n' % dir)
@@ -99,15 +100,11 @@ def do_pack_nsis(info):
                 f.write('File "%s"\n' % file)
         f.write('!macroend\n\n')
 
-        f.write('!macro UNINSTALL_FILES\n')
-        for file in artifacts.itervalues():
-            f.write('Delete "$INSTDIR\\%s"\n' % file)
-        for dir in inst_dirs.iterkeys():
-            f.write('RMDir "$INSTDIR\\%s"\n' % dir)
-        f.write('!macroend\n\n')
-
-        f.write('!include "%s"\n' % core_script)
-    cmdutil.native_exec('makensis', ['-V2', installer_script])
+        f.write('!define AppVersion "%s"\n\n' % version)
+        f.write('!addincludedir "%s"\n' % info.script_dir)
+        f.write('!addincludedir "%s"\n\n' % system_dir)
+        f.write('!include "%s"\n' % info.installer_file)
+    cmdutil.native_exec('makensis', ['-V1', output_script])
 
 def do_build_all(info):
     do_generate_makefile(info)

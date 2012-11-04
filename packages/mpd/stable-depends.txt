@@ -1,1 +1,1 @@
-!include common-depends
+!include common/depends

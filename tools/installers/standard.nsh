@@ -5,13 +5,10 @@
 !define UninstKey   "Software\Microsoft\Windows\CurrentVersion\Uninstall\${AppName}"
 !define UninstFile  "uninstall.exe"
 
-##### Compiler configuration
-OutFile       "${AppId}-${AppVersion}-setup.exe"
-SetCompressor /SOLID lzma
-
 ##### General options
 Name       "${AppName}"
 InstallDir "$PROGRAMFILES\${AppName}"
+SetCompressor /SOLID lzma
 
 ##### Manifest options
 XPStyle               on
@@ -40,18 +37,19 @@ RequestExecutionLevel admin
 ###### Installation
 Section
     !insertmacro INSTALL_FILES
-    WriteRegStr   HKLM ${UninstKey} "DisplayName"       "${AppName}"
-    WriteRegStr   HKLM ${UninstKey} "DisplayAppVersion" "${AppVersion}"
-    WriteRegStr   HKLM ${UninstKey} "UninstallString"   '"$INSTDIR\${UninstFile}"'
-    WriteRegDWORD HKLM ${UninstKey} "NoModify" 1
-    WriteRegDWORD HKLM ${UninstKey} "NoRepair" 1
     WriteUninstaller "$INSTDIR\${UninstFile}"
+    WriteRegStr   HKLM "${UninstKey}" "DisplayName"       "${AppName}"
+    WriteRegStr   HKLM "${UninstKey}" "DisplayAppVersion" "${AppVersion}"
+    WriteRegStr   HKLM "${UninstKey}" "UninstallString"   "$INSTDIR\${UninstFile}"
+    WriteRegDWORD HKLM "${UninstKey}" "NoModify" 1
+    WriteRegDWORD HKLM "${UninstKey}" "NoRepair" 1
 SectionEnd
 
 ###### Uninstallation
 Section "Uninstall"
-    !insertmacro UNINSTALL_FILES
-    DeleteRegKey HKLM ${UninstKey}
+    DeleteRegKey HKLM "${UninstKey}"
+    RMDir /r "$INSTDIR\bin"
+    RMDir /r "$INSTDIR\doc"
     Delete "$INSTDIR\${UninstFile}"
     RMDir "$INSTDIR"
 SectionEnd
