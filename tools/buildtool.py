@@ -94,14 +94,14 @@ def do_pack_nsis(info):
 
     with open(output_script, 'w') as f:
         f.write('OutFile "%s"\n\n' % output_installer)
-        f.write('!macro InstallFiles\n')
+        f.write('!macro INSTALL_FILES\n')
         for dir, files in inst_dirs.iteritems():
             f.write('SetOutPath "$INSTDIR\\%s"\n' % dir)
             for file in files:
                 f.write('File "%s"\n' % file)
         f.write('!macroend\n\n')
 
-        f.write('!define AppVersion "%s"\n\n' % version)
+        f.write('!define APP_VERSION "%s"\n\n' % version)
         f.write('!addincludedir "%s"\n' % info.script_dir)
         f.write('!addincludedir "%s"\n\n' % system_dir)
         f.write('!include "%s"\n' % info.installer_file)

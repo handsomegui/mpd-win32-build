@@ -1,55 +1,58 @@
-!include MUI2.nsh
+!ifndef OLDISH_UI
+    !include MUI2.nsh
+!endif
 
-##### Commonly used strings
-!define GraphicsDir "${NSISDIR}\Contrib\Graphics"
-!define UninstKey   "Software\Microsoft\Windows\CurrentVersion\Uninstall\${AppName}"
-!define UninstFile  "uninstall.exe"
+!define GFX_DIR     "${NSISDIR}\Contrib\Graphics"
+!define UNINST_KEY  "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_NAME}"
+!define UNINST_FILE "uninstall.exe"
 
-##### General options
-Name       "${AppName}"
-InstallDir "$PROGRAMFILES\${AppName}"
-SetCompressor /SOLID lzma
-
-##### Manifest options
+Name                  "${APP_NAME}"
+InstallDir            "$PROGRAMFILES\${APP_NAME}"
+SetCompressor         /SOLID lzma
 XPStyle               on
 RequestExecutionLevel admin
 
-##### UI options
-!define MUI_ICON                     "${GraphicsDir}\Icons\orange-install.ico"
-!define MUI_UNICON                   "${GraphicsDir}\Icons\orange-uninstall.ico"
-!define MUI_HEADERIMAGE
-!define MUI_HEADERIMAGE_BITMAP       "${GraphicsDir}\Header\orange.bmp"
-!define MUI_WELCOMEFINISHPAGE_BITMAP "${GraphicsDir}\Wizard\orange.bmp"
-!define MUI_ABORTWARNING
+!ifdef OLDISH_UI
+    InstallColors /windows
+    Icon          "${GFX_DIR}\Icons\orange-install.ico"
+    UninstallIcon "${GFX_DIR}\Icons\orange-uninstall.ico"
+  
+    Page directory
+    Page instfiles
 
-##### Installer pages
-!insertmacro MUI_PAGE_WELCOME
-!insertmacro MUI_PAGE_DIRECTORY
-!insertmacro MUI_PAGE_INSTFILES
+    UninstPage uninstConfirm
+    UninstPage instfiles
+!else
+    !define MUI_ICON                     "${GFX_DIR}\Icons\orange-install.ico"
+    !define MUI_UNICON                   "${GFX_DIR}\Icons\orange-uninstall.ico"
+    !define MUI_HEADERIMAGE
+    !define MUI_HEADERIMAGE_BITMAP       "${GFX_DIR}\Header\orange.bmp"
+    !define MUI_WELCOMEFINISHPAGE_BITMAP "${GFX_DIR}\Wizard\orange.bmp"
+    !define MUI_ABORTWARNING
 
-##### Uninstaller pages
-!insertmacro MUI_UNPAGE_CONFIRM
-!insertmacro MUI_UNPAGE_INSTFILES
+    !insertmacro MUI_PAGE_WELCOME
+    !insertmacro MUI_PAGE_DIRECTORY
+    !insertmacro MUI_PAGE_INSTFILES
+  
+    !insertmacro MUI_UNPAGE_CONFIRM
+    !insertmacro MUI_UNPAGE_INSTFILES
 
-##### Language settings
-!insertmacro MUI_LANGUAGE "English"
+    !insertmacro MUI_LANGUAGE "English"
+!endif
 
-###### Installation
-Section
-    !insertmacro InstallFiles
-    WriteUninstaller "$INSTDIR\${UninstFile}"
-    WriteRegStr   HKLM "${UninstKey}" "DisplayName"       "${AppName}"
-    WriteRegStr   HKLM "${UninstKey}" "DisplayAppVersion" "${AppVersion}"
-    WriteRegStr   HKLM "${UninstKey}" "UninstallString"   "$INSTDIR\${UninstFile}"
-    WriteRegDWORD HKLM "${UninstKey}" "NoModify" 1
-    WriteRegDWORD HKLM "${UninstKey}" "NoRepair" 1
-SectionEnd
+!macro CREATE_UNINSTALLER
+    WriteUninstaller "$INSTDIR\${UNINST_FILE}"
+    WriteRegStr   HKLM "${UNINST_KEY}" "DisplayName"       "${APP_NAME}"
+    WriteRegStr   HKLM "${UNINST_KEY}" "DisplayAppVersion" "${APP_VERSION}"
+    WriteRegStr   HKLM "${UNINST_KEY}" "UninstallString"   "$INSTDIR\${UNINST_FILE}"
+    WriteRegDWORD HKLM "${UNINST_KEY}" "NoModify" 1
+    WriteRegDWORD HKLM "${UNINST_KEY}" "NoRepair" 1
+!macroend
 
-###### Uninstallation
-Section "Uninstall"
-    DeleteRegKey HKLM "${UninstKey}"
-    RMDir /r "$INSTDIR\bin"
-    RMDir /r "$INSTDIR\doc"
-    Delete "$INSTDIR\${UninstFile}"
-    RMDir "$INSTDIR"
-SectionEnd
+!macro UNINSTALL_ALL
+    DeleteRegKey HKLM "${UNINST_KEY}"
+    RMDir  /r "$INSTDIR\bin"
+    RMDir  /r "$INSTDIR\doc"
+    Delete "$INSTDIR\${UNINST_FILE}"
+    RMDir  "$INSTDIR"
+!macroend
