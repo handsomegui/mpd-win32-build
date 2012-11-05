@@ -6,20 +6,18 @@
 @set base_dir=%~f1
 @set music_dir=%~f2
 @set data_dir=%base_dir%\data
-@set conf_dir=%base_dir%\conf
 @set pls_dir=%data_dir%\playlists
 
 @set f_music_dir=%music_dir:\=/%
 @set f_data_dir=%data_dir:\=/%
 
-@set conf_file=%conf_dir%\mpd.conf
+@set conf_file=%base_dir%\mpd.conf
 @set header=# Visit http://mpd.wikia.com/wiki/Configuration for more information.
 
 @if exist "%conf_file%" (
     if not "%~3"=="/force" goto :no_overwrite
 )
 
-@if not exist "%conf_dir%\." @mkdir "%conf_dir%"
 @if not exist "%data_dir%\." @mkdir "%data_dir%"
 @if not exist "%pls_dir%\."  @mkdir "%pls_dir%"
 

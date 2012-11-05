@@ -8,7 +8,7 @@
 
 !define CONFIGURE "$PLUGINSDIR\mpd-configure.cmd"
 !define MPD_EXE   "$INSTDIR\bin\mpd.exe"
-!define MPD_CONF  "$INSTDIR\conf\mpd.conf"
+!define MPD_CONF  "$INSTDIR\profile\mpd.conf"
 
 !macro INSTALL_SHORTCUTS
     CreateDirectory "${SHORTCUT_DIR}"
@@ -29,7 +29,7 @@
 !macro GENERATE_CONFIG
     DetailPrint "Generating configuration file..."
     SetDetailsPrint none
-    nsExec::Exec '"${CONFIGURE}" "$INSTDIR" "$MUSIC"'
+    nsExec::Exec '"${CONFIGURE}" "$INSTDIR\profile" "$MUSIC"'
     Pop $0
     SetDetailsPrint both
 !macroend
