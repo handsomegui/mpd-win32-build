@@ -23,7 +23,8 @@
 !macro GENERATE_CONFIG
     DetailPrint "Generating configuration file..."
     SetDetailsPrint none
-    ExecWait    '"${MPD_CONFIGURE}" "$INSTDIR" "$MUSIC"'
+    nsExec::Exec '"${MPD_CONFIGURE}" "$INSTDIR" "$MUSIC"'
+    Pop $0
     SetDetailsPrint both
 !macroend
 
