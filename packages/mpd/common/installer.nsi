@@ -9,7 +9,6 @@
 !define MPD_CONF      "$INSTDIR\conf\mpd.conf"
 
 !macro INSTALL_SHORTCUTS
-    DetailPrint "Creating shortcuts..."
     CreateDirectory "${SHORTCUT_DIR}"
     CreateShortCut  "${SHORTCUT_EDIT_MPD_CONF}" \
         "$WINDIR\system32\notepad.exe" \
@@ -18,12 +17,14 @@
 
 !macro UNINSTALL_SHORTCUTS
     Delete "${SHORTCUT_EDIT_MPD_CONF}"
-    RMDir  "${SHORTCUR_DIR}"
+    RMDir  "${SHORTCUT_DIR}"
 !macroend
 
 !macro GENERATE_CONFIG
     DetailPrint "Generating configuration file..."
+    SetDetailsPrint none
     ExecWait    '"${MPD_CONFIGURE}" "$INSTDIR" "$MUSIC"'
+    SetDetailsPrint both
 !macroend
 
 Function .onInit
