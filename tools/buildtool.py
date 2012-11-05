@@ -89,7 +89,8 @@ def do_pack_nsis(info):
 
     inst_dirs = {}
     for source, target in artifacts.iteritems():
-        inst_dirs.setdefault(path.dirname(target), []).append(source)
+        dir = path.dirname(target).replace('/', '\\')
+        inst_dirs.setdefault(dir, []).append(source)
 
     with open(output_script, 'w') as f:
         f.write('OutFile "%s"\n\n' % output_installer)
