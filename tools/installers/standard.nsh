@@ -7,10 +7,10 @@
 !define UNINST_FILE "uninstall.exe"
 
 Name                  "${APP_NAME}"
-InstallDir            "$PROGRAMFILES\${APP_NAME}"
+InstallDir            "$LOCALAPPDATA\${APP_NAME}"
 SetCompressor         /SOLID lzma
 XPStyle               on
-RequestExecutionLevel admin
+RequestExecutionLevel user
 
 !ifdef OLDISH_UI
     InstallColors /windows
@@ -42,15 +42,15 @@ RequestExecutionLevel admin
 
 !macro CREATE_UNINSTALLER
     WriteUninstaller "$INSTDIR\${UNINST_FILE}"
-    WriteRegStr   HKLM "${UNINST_KEY}" "DisplayName"       "${APP_NAME}"
-    WriteRegStr   HKLM "${UNINST_KEY}" "DisplayAppVersion" "${APP_VERSION}"
-    WriteRegStr   HKLM "${UNINST_KEY}" "UninstallString"   "$INSTDIR\${UNINST_FILE}"
-    WriteRegDWORD HKLM "${UNINST_KEY}" "NoModify" 1
-    WriteRegDWORD HKLM "${UNINST_KEY}" "NoRepair" 1
+    WriteRegStr   HKCU "${UNINST_KEY}" "DisplayName"       "${APP_NAME}"
+    WriteRegStr   HKCU "${UNINST_KEY}" "DisplayAppVersion" "${APP_VERSION}"
+    WriteRegStr   HKCU "${UNINST_KEY}" "UninstallString"   "$INSTDIR\${UNINST_FILE}"
+    WriteRegDWORD HKCU "${UNINST_KEY}" "NoModify" 1
+    WriteRegDWORD HKCU "${UNINST_KEY}" "NoRepair" 1
 !macroend
 
 !macro UNINSTALL_ALL
-    DeleteRegKey HKLM "${UNINST_KEY}"
+    DeleteRegKey HKCU "${UNINST_KEY}"
     RMDir  /r "$INSTDIR\bin"
     RMDir  /r "$INSTDIR\doc"
     Delete "$INSTDIR\${UNINST_FILE}"
