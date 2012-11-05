@@ -105,7 +105,8 @@ def do_pack_nsis(info):
         f.write('!addincludedir "%s"\n' % info.script_dir)
         f.write('!addincludedir "%s"\n\n' % system_dir)
         f.write('!include "%s"\n' % info.installer_file)
-    cmdutil.native_exec('makensis', ['-V1', output_script])
+    nsis_args = ['-V1', '-NOCD', output_script]
+    cmdutil.native_exec('makensis', nsis_args, work_dir=info.script_dir)
 
 def do_build_all(info):
     do_generate_makefile(info)
