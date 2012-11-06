@@ -1,5 +1,10 @@
 @setlocal
 
+@if "%~1"=="/force" (
+    @shift
+    set force=1
+)
+
 @if "%~1"=="" goto usage
 @if "%~2"=="" goto usage
 
@@ -15,7 +20,7 @@
 @set header=# Visit http://mpd.wikia.com/wiki/Configuration for more information.
 
 @if exist "%conf_file%" (
-    if not "%~3"=="/force" goto :no_overwrite
+    if not "%force%"=="1" goto :no_overwrite
 )
 
 @if not exist "%data_dir%\." @mkdir "%data_dir%"
@@ -40,7 +45,7 @@
 @goto end
 
 :usage
-@echo usage: %~n0 base_dir music_dir [/force]
+@echo usage: %~n0 [/force] base_dir music_dir
 @goto end
 
 :no_overwrite
