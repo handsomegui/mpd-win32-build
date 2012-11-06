@@ -12,14 +12,17 @@
 !define MPD_CONF  "$INSTDIR\profile\mpd.conf"
 
 Var MusicDir
+Var HasConfig
 
 !insertmacro MUI_PAGE_DIRECTORY
 
+!define MUI_PAGE_CUSTOMFUNCTION_PRE         MusicDirPre
 !define MUI_PAGE_HEADER_TEXT                "Choose music folder"
 !define MUI_PAGE_HEADER_SUBTEXT             "Choose folder where your music files reside."
 !define MUI_DIRECTORYPAGE_TEXT_TOP          "The following folder would be used by ${APP_NAME} for music files. To choose different folder, click Browse and select another folder."
 !define MUI_DIRECTORYPAGE_TEXT_DESTINATION  "Music Folder"
 !define MUI_DIRECTORYPAGE_VARIABLE          $MusicDir
+
 !insertmacro MUI_PAGE_DIRECTORY
 
 !insertmacro MUI_PAGE_INSTFILES
@@ -35,14 +38,26 @@ Function .onInit
     StrCpy $MusicDir $MUSIC
 FunctionEnd
 
+Function MusicDirPre
+    IfFileExists "${MPD_CONF}" 0 +3
+        StrCpy $HasConfig "y"
+        Abort
+    # else
+        StrCpy $HasConfig "n"
+FunctionEnd
+
 Section
     !insertmacro INSTALL_FILES
 
-    DetailPrint "Generating configuration file..."
-    SetDetailsPrint none
-    nsExec::Exec '"${CONFIGURE}" "$INSTDIR\profile" "$MusicDir"'
-    Pop $0
-    SetDetailsPrint both
+    StrCmp $HasConfig "y" done_config
+    
+      DetailPrint "Generating configuration file..."
+      SetDetailsPrint none
+      nsExec::Exec '"${CONFIGURE}" "$INSTDIR\profile" "$MusicDir"'
+      Pop $0
+      SetDetailsPrint both
+    
+    done_config:
 
     CreateDirectory "${SHORTCUT_DIR}"
     CreateShortCut  "${SHORTCUT_EXE}"       '"${MPD_EXE}"' '"${MPD_CONF}"'
