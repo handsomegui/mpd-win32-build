@@ -1,7 +1,7 @@
 @setlocal
 
 @if "%~1"=="/force" (
-    @shift
+    shift
     set force=1
 )
 
@@ -37,6 +37,11 @@
 @echo sticker_file       "%f_data_dir%/stickers">>"%conf_file%"
 @call :write_line
 @echo bind_to_address    "localhost">>"%conf_file%"
+@call :write_line
+@echo audio_output {>>"%conf_file%"
+@echo     type "winmm">>"%conf_file%"
+@echo     name "default">>"%conf_file%"
+@echo }>>"%conf_file%"
 
 @goto end
 
