@@ -3,17 +3,16 @@
 !include common.nsh
 
 !define APP       "$INSTDIR\bin\mpd.exe"
-!define NOTEPAD   "$WINDIR\system32\notepad.exe"
+!define NOTEPAD   "$SYSDIR\notepad.exe"
 !define GENCONFIG "$PLUGINSDIR\genconfig.cmd"
-
-!define CONFIG_DIR  "$LOCALAPPDATA\mpd"
-!define CONFIG_FILE "${CONFIG_DIR}\mpd.conf"
+!define CONFIG_FILE "$ConfigDir\mpd.conf"
 
 !define SHORTCUT_DIR       "$SMPROGRAMS\${APP_NAME}"
 !define SHORTCUT_APP       "${SHORTCUT_DIR}\${APP_NAME}.lnk"
 !define SHORTCUT_EDIT_CONF "${SHORTCUT_DIR}\Edit mpd.conf.lnk"
 
 Var MusicDir
+Var ConfigDir
 Var HasConfig
 
 !insertmacro MULTIUSER_PAGE_INSTALLMODE
@@ -36,6 +35,12 @@ Function .onInit
     InitPluginsDir
     File /oname=${GENCONFIG} "common\genconfig.cmd"
     StrCpy $MusicDir $MUSIC
+    
+    ${If} $MultiUser.InstallMode == "AllUsers"  
+        StrCpy $ConfigDir "$APPDATA\mpd"
+    ${Else}
+        StrCpy $ConfigDir "$LOCALAPPDATA\mpd"
+    ${EndIf}
 FunctionEnd
 
 Function un.onInit
@@ -57,7 +62,7 @@ Section
     ${If} $HasConfig == "n"
       DetailPrint "Generating configuration file..."
       SetDetailsPrint none
-      nsExec::Exec '"${GENCONFIG}" "${CONFIG_DIR}" "$MusicDir"'
+      nsExec::Exec '"${GENCONFIG}" "$ConfigDir" "$MusicDir"'
       Pop $0
       SetDetailsPrint both
     ${EndIf}
