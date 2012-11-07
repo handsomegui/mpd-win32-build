@@ -1,6 +1,6 @@
 !define APP_NAME "Music Player Daemon"
 
-!include standard.nsh
+!include common.nsh
 
 !define APP       "$INSTDIR\bin\mpd.exe"
 !define NOTEPAD   "$WINDIR\system32\notepad.exe"
@@ -16,6 +16,7 @@
 Var MusicDir
 Var HasConfig
 
+!insertmacro MULTIUSER_PAGE_INSTALLMODE
 !insertmacro MUI_PAGE_DIRECTORY
 !define MUI_PAGE_CUSTOMFUNCTION_PRE        MusicDirPre
 !define MUI_PAGE_HEADER_TEXT               "Choose music folder"
@@ -31,31 +32,35 @@ Var HasConfig
 !insertmacro MUI_LANGUAGE "English"
 
 Function .onInit
+    !insertmacro MULTIUSER_INIT
     InitPluginsDir
     File /oname=${GENCONFIG} "common\genconfig.cmd"
     StrCpy $MusicDir $MUSIC
 FunctionEnd
 
+Function un.onInit
+    !insertmacro MULTIUSER_UNINIT
+FunctionEnd
+
 Function MusicDirPre
-    IfFileExists "${CONFIG_FILE}" 0 +3
+    ${If} ${FileExists} "${CONFIG_FILE}"
         StrCpy $HasConfig "y"
         Abort
-    # else
+    ${Else}
         StrCpy $HasConfig "n"
+    ${EndIf}
 FunctionEnd
 
 Section
     !insertmacro INSTALL_FILES
 
-    StrCmp $HasConfig "y" done_config
-    
+    ${If} $HasConfig == "n"
       DetailPrint "Generating configuration file..."
       SetDetailsPrint none
       nsExec::Exec '"${GENCONFIG}" "${CONFIG_DIR}" "$MusicDir"'
       Pop $0
       SetDetailsPrint both
-    
-    done_config:
+    ${EndIf}
 
     CreateDirectory "${SHORTCUT_DIR}"
     CreateShortCut  "${SHORTCUT_APP}"       '"${APP}"'
