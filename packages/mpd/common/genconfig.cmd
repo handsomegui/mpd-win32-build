@@ -30,11 +30,11 @@
 @call :write_line
 @echo music_directory    "%f_music_dir%">>"%conf_file%"
 @call :write_line
-@echo playlist_directory "%f_data_dir%/playlists">>"%conf_file%"
 @echo db_file            "%f_data_dir%/database">>"%conf_file%"
 @echo log_file           "%f_data_dir%/log">>"%conf_file%"
 @echo state_file         "%f_data_dir%/state">>"%conf_file%"
 @echo sticker_file       "%f_data_dir%/stickers">>"%conf_file%"
+@echo playlist_directory "%f_data_dir%/playlists">>"%conf_file%"
 @call :write_line
 @echo bind_to_address    "localhost">>"%conf_file%"
 @call :write_line
