@@ -55,8 +55,8 @@ def build(static_lib = False, shared_lib = False, options = '', crossbuild_optio
         if shared_lib:
             all_options.extend(['--enable-shared', '--disable-static'])
         all_options.extend(options.split())
-        all_options.extend(config.get('options').split())
-        all_options.extend(config.get(_info.name + '-options').split())
+        all_options.extend(config.get_list('options'))
+        all_options.extend(config.get_list(_info.name + '-options'))
         env = _build_configure_env(libs.split(), cflags.split())
         cmdutil.unix_exec('sh', all_options, work_dir=build_dir, extra_env=env)
         fsutil.write_marker(configure_ok)
@@ -253,11 +253,11 @@ def _build_configure_env(user_libs, user_cflags):
         cflags.append('-I' + cmdutil.to_unix_path(path.join(p, 'include')))
         pkg_config_paths.append(cmdutil.to_unix_path(path.join(p, 'lib', 'pkgconfig')))
 
-    env_libs = config.get('libs').split()
-    env_cflags = config.get('cflags').split()
+    env_libs = config.get_list('libs')
+    env_cflags = config.get_list('cflags')
 
-    lenv_libs = config.get(_info.name + '-libs').split()
-    lenv_cflags = config.get(_info.name + '-cflags').split()
+    lenv_libs = config.get_list(_info.name + '-libs')
+    lenv_cflags = config.get_list(_info.name + '-cflags')
 
     result = {
         'LIBS'            : ' '.join(libs + user_libs + env_libs + lenv_libs),

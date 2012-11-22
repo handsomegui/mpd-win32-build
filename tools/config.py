@@ -6,6 +6,9 @@ from os import path
 def get(name, fallback = ''):
     return _config_vars.get(name, fallback)
 
+def get_list(name):
+    return get(name).split()
+
 def init(profile):
     global _config_vars
 
