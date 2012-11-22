@@ -76,38 +76,6 @@ def do_pack_zip(info):
         for source, target in artifacts.iteritems():
             z.write(source, path.join(dist_name, target))
 
-def do_pack_nsis(info):
-    if not info.installer_file:
-        raise ValueError('Installer script is not found: ' + info.installer_file)
-
-    version = info.version()
-    artifacts = info.artifacts()
-
-    system_dir = path.join(path.dirname(path.abspath(__file__)), 'installers')
-    output_script = path.join(info.install_dir, 'installer.nsi')
-    output_installer = path.join(info.dist_dir, "%s-%s-setup.exe" % (info.dist_name, version))
-
-    inst_dirs = {}
-    for source, target in artifacts.iteritems():
-        dir = path.dirname(target).replace('/', '\\')
-        inst_dirs.setdefault(dir, []).append(source)
-
-    with open(output_script, 'w') as f:
-        f.write('OutFile "%s"\n\n' % output_installer)
-        f.write('!macro INSTALL_FILES\n')
-        for dir, files in inst_dirs.iteritems():
-            f.write('SetOutPath "$INSTDIR\\%s"\n' % dir)
-            for file in files:
-                f.write('File "%s"\n' % file)
-        f.write('!macroend\n\n')
-
-        f.write('!define APP_VERSION "%s"\n\n' % version)
-        f.write('!addincludedir "%s"\n' % info.script_dir)
-        f.write('!addincludedir "%s"\n\n' % system_dir)
-        f.write('!include "%s"\n' % info.installer_file)
-    nsis_args = ['-V1', '-NOCD', output_script]
-    cmdutil.native_exec('makensis', nsis_args, work_dir=info.script_dir)
-
 def do_build_all(info):
     do_generate_makefile(info)
     run_make('build', info)
