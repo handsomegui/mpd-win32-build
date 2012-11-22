@@ -56,6 +56,7 @@ def build(static_lib = False, shared_lib = False, options = '', crossbuild_optio
             all_options.extend(['--enable-shared', '--disable-static'])
         all_options.extend(options.split())
         all_options.extend(config.get('options').split())
+        all_options.extend(config.get(_info.name + '-options').split())
         env = _build_configure_env(libs.split(), cflags.split())
         cmdutil.unix_exec('sh', all_options, work_dir=build_dir, extra_env=env)
         fsutil.write_marker(configure_ok)
@@ -255,9 +256,12 @@ def _build_configure_env(user_libs, user_cflags):
     env_libs = config.get('libs').split()
     env_cflags = config.get('cflags').split()
 
+    lenv_libs = config.get(_info.name + '-libs').split()
+    lenv_cflags = config.get(_info.name + '-cflags').split()
+
     result = {
-        'LIBS'            : ' '.join(libs + user_libs + env_libs),
-        'CFLAGS'          : ' '.join(cflags + user_cflags + env_cflags),
+        'LIBS'            : ' '.join(libs + user_libs + env_libs + lenv_libs),
+        'CFLAGS'          : ' '.join(cflags + user_cflags + env_cflags + lenv_cflags),
         'PKG_CONFIG_PATH' : ':'.join(pkg_config_paths),
     }
 
