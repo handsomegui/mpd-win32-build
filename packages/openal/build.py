@@ -1,4 +1,4 @@
-fetch('http://kcat.strangesoft.net/openal-releases/openal-soft-1.14.tar.bz2')
+fetch('http://kcat.strangesoft.net/openal-releases/openal-soft-1.15.1.tar.bz2')
 patch('CMakeLists.txt')
 patch('Alc/alcConfig.c')
 

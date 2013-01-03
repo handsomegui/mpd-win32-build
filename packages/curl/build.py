@@ -19,7 +19,7 @@ options = """
     --without-winssl
 """
 
-fetch('http://curl.haxx.se/download/curl-7.27.0.tar.lzma')
+fetch('http://curl.haxx.se/download/curl-7.28.1.tar.lzma')
 build(static_lib=True, options=options)
 
 collect_licenses('COPYING README')
