@@ -24,6 +24,8 @@ class PackageInfo:
         return None
 
     def dependency_map(self):
+        if self.dep_map:
+            return self.dep_map
         result = {}
         next = [self.name]
         while next:
@@ -33,6 +35,7 @@ class PackageInfo:
             deps = get(name)._read_dependencies()
             result[name] = deps
             next.extend(deps)
+        self.dep_map = result
         return result
 
     def artifacts(self):
@@ -77,6 +80,8 @@ class PackageInfo:
         self.crossbuild = _crossbuild
         self.crossbuild_build = _crossbuild_build
         self.crossbuild_host = _crossbuild_host
+        
+        self.dep_map = None
 
 _info_cache = {}
 
