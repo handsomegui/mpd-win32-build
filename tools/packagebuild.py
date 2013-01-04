@@ -36,7 +36,15 @@ def build_cmake(options = '', subdir = ''):
         cmdutil.native_exec('cmake', options, work_dir=cmake_dir)
         fsutil.write_marker(cmake_ok)
 
-    _make_and_install(cmdutil.native_make, cmake_dir, build_dir)
+    (rebuild, stamp) = _get_make_status(build_dir)
+    if rebuild:
+        _log('making')
+        cmdutil.native_make([], work_dir=cmake_dir)
+        _log('installing')
+        cmdutil.native_make(['install'], work_dir=cmake_dir)
+        fsutil.write_marker(stamp)
+    else:
+        _log('up to date')
 
 def build(static_lib = False, shared_lib = False, options = '', crossbuild_options=True, libs = '', cflags = '', subdir = ''):
     if static_lib and shared_lib:
@@ -61,10 +69,25 @@ def build(static_lib = False, shared_lib = False, options = '', crossbuild_optio
         cmdutil.unix_exec('sh', all_options, work_dir=build_dir, extra_env=env)
         fsutil.write_marker(configure_ok)
 
-    _make_and_install(cmdutil.unix_make, build_dir, build_dir)
+    (rebuild, stamp) = _get_make_status(build_dir)
+    if rebuild:
+        _log('making')
+        cmdutil.unix_make([], work_dir=build_dir)
+        _log('installing')
+        cmdutil.unix_make(['install'], work_dir=build_dir)
+        fsutil.write_marker(stamp)
+    else:
+        _log('up to date')
 
 def make(args):
-    cmdutil.unix_make(args.split(), work_dir=_info.build_dir)
+    build_dir = _info.build_dir
+    (rebuild, stamp) = _get_make_status(build_dir)
+    if rebuild:
+        _log('making and installing')
+        cmdutil.unix_make(args.split(), work_dir=build_dir)
+        fsutil.write_marker(stamp)
+    else:
+        _log('up to date')
 
 def remove(file):
     target = path.join(_info.build_dir, file)
@@ -158,20 +181,13 @@ def _collect_artifacts(patterns, source_dir, target_dir):
                 found = True
     return found
 
-def _make_and_install(maker, work_dir, build_dir):
+def _get_make_status(build_dir):
     stamp = path.join(build_dir, 'make.ok')
     if path.exists(stamp):
-        run_make = fsutil.max_mtime(build_dir) > path.getmtime(stamp)
+        rebuild = fsutil.max_mtime(build_dir) > path.getmtime(stamp)
     else:
-        run_make = True
-    if run_make:
-        _log('making')
-        maker([], work_dir=work_dir)
-        _log('installing')
-        maker(['install'], work_dir=work_dir)
-        fsutil.write_marker(stamp)
-    else:
-        _log('up to date')
+        rebuild = True
+    return (rebuild, stamp)
 
 def _add_subpath(base, subpath):
     if subpath:
