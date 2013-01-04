@@ -25,28 +25,11 @@ def clean_dir(dir):
     else:
         shutil.rmtree(dir)
 
-def git_fetch_mirror(info):
-    cached_repo = path.join(info.cache_dir, 'mirror.git')
-    if cmdutil.git_check(cached_repo):
-        cmdutil.git('fetch', ['--all'], work_dir=cached_repo)
-
-def git_in_build_dir(info, action):
-    if cmdutil.git_check(info.build_dir):
-        cmdutil.git(action, work_dir=info.build_dir)
-
 def run_make(target):
     cmdutil.native_make(['-f', make_file, target], None)
 
 def do_build(info):
     packagebuild.run(info)
-
-def do_pull_source(info):
-    git_fetch_mirror(info)
-    git_in_build_dir(info, 'pull')
-
-def do_fetch_source(info):
-    git_fetch_mirror(info)
-    git_in_build_dir(info, 'fetch')
 
 def do_clean(info):
     clean_dir(info.build_dir)

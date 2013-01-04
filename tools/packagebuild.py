@@ -189,15 +189,21 @@ def _fetch_archive(url, file = None):
 
 def _fetch_git(url, rev):
     repo_dir = path.join(_info.cache_dir, 'mirror.git')
-    tar_file = path.join(_info.cache_dir, 'rev-' + rev + '.tar')
+    if cmdutil.git_check(repo_dir):
+        _log('fetching')
+        cmdutil.git('fetch', ['--all'], work_dir=repo_dir)
+    else:
+        _log('cloning')
+        cmdutil.git('clone', ['--mirror', url, repo_dir])
+
+    real_rev = cmdutil.git_short_rev(repo_dir, rev)
+    tar_file = path.join(_info.cache_dir, 'rev-%s.tar' % real_rev)
     tar_glob = path.join(_info.cache_dir, 'rev-*.tar')
     exported = False
 
-    _git_clone_once(url, repo_dir, mirror=True)
-
     if not path.exists(tar_file):
         fsutil.glob_remove(tar_glob)
-        cmdutil.git('archive', ['-o', tar_file, rev], work_dir=repo_dir)
+        cmdutil.git('archive', ['-o', tar_file, real_rev], work_dir=repo_dir)
         exported = True
 
     if exported or _build_dir_empty():
@@ -283,16 +289,6 @@ def _untar_to_build_dir(tar_file, strip_root_dir = False):
         shutil.rmtree(_info.build_dir)
     os.makedirs(_info.build_dir)
     cmdutil.untar(tar_file, target_dir=_info.build_dir, strip_root_dir=strip_root_dir)
-
-def _git_clone_once(url, target_dir, mirror = False):
-    if cmdutil.git_check(target_dir):
-        return False
-    _log('cloning')
-    if mirror:
-        cmdutil.git('clone', ['--mirror', url, target_dir])
-    else:
-        cmdutil.git('clone', ['--no-checkout', url, target_dir])
-    return True
 
 def _guess_name(url):
     download_suffix = '/download'

@@ -91,12 +91,6 @@ Target is a package to deal with. Action is one of the following:
     This action is implictly executed by any target ending with -all.
     It does not require target argument.
 
-  fetch-source
-    Do 'git fetch' on each repository that is used by specified target.
-
-  pull-source
-    Do 'git pull' on each repository that is used by specified target.
-
   pack-zip
     Pack specified target and all dependencies to .zip file ready for releasing.
     Target and dependencies are assumed to be built.
