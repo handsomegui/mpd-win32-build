@@ -112,7 +112,7 @@ def git_check(target_dir):
         head_file = path.join(target_dir, '.git', 'HEAD')
     return path.exists(head_file)
     
-def git_short_rev(target_dir, rev = 'HEAD'):
+def git_short_rev(target_dir, rev):
     args = ['rev-parse', '--short', rev]
     output = native_exec('git', args, work_dir=target_dir, save_output=True)
     return output.strip()

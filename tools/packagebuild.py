@@ -102,8 +102,8 @@ def collect_version(src_file = 'configure.ac'):
     if len(results) != 1:
         raise ValueError('Unable to extract version')
     version = results[0]
-    if cmdutil.git_check(_info.build_dir):
-        version += '-' + cmdutil.git_short_rev(_info.build_dir)
+    if _source_rev:
+        version += '-' + _source_rev
     with open(_info.version_file, 'w') as f:
         f.write(version)
 
@@ -188,6 +188,8 @@ def _fetch_archive(url, file = None):
         _untar_to_build_dir(file_path, strip_root_dir=True)
 
 def _fetch_git(url, rev):
+    global _source_rev
+
     repo_dir = path.join(_info.cache_dir, 'mirror.git')
     if cmdutil.git_check(repo_dir):
         _log('fetching')
@@ -196,14 +198,14 @@ def _fetch_git(url, rev):
         _log('cloning')
         cmdutil.git('clone', ['--mirror', url, repo_dir])
 
-    real_rev = cmdutil.git_short_rev(repo_dir, rev)
-    tar_file = path.join(_info.cache_dir, 'rev-%s.tar' % real_rev)
+    _source_rev = cmdutil.git_short_rev(repo_dir, rev)
+    tar_file = path.join(_info.cache_dir, 'rev-%s.tar' % _source_rev)
     tar_glob = path.join(_info.cache_dir, 'rev-*.tar')
     exported = False
 
     if not path.exists(tar_file):
         fsutil.glob_remove(tar_glob)
-        cmdutil.git('archive', ['-o', tar_file, real_rev], work_dir=repo_dir)
+        cmdutil.git('archive', ['-o', tar_file, _source_rev], work_dir=repo_dir)
         exported = True
 
     if exported or _build_dir_empty():
