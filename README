@@ -89,6 +89,7 @@ Target is a package to deal with. Action is one of the following:
     Generates make file that could be used to build target and its dependencies
     with additional make options such as -j.
     This action is implictly executed by any target ending with -all.
+    It does not require target argument.
 
   fetch-source
     Do 'git fetch' on each repository that is used by specified target.
@@ -109,6 +110,6 @@ Examples:
 
   The same but use 4 build jobs at once:
 
-    $ ./buildtool generate-makefile mpd-release
-    $ make -j 4 -f work/mpd-release.mk
+    $ ./buildtool generate-makefile
+    $ make -j 4 -f work/Makefile mpd-release
     $ ./buildtool pack mpd-release

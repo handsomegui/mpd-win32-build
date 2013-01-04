@@ -1,4 +1,4 @@
-import os
+import os, glob
 import config, cmdutil, fsutil
 
 from os import path
@@ -68,11 +68,9 @@ class PackageInfo:
             raise ValueError('Directory is not found for package ' + name)
 
         self.build_file = self._resolve_script('build.py')
-        self.make_file = path.join(_work_dir, name + '.mk')
         self.log_file = path.join(_log_dir, name + '.log')
         self.artifacts_file = path.join(self.install_dir, 'artifacts.txt')
         self.version_file = path.join(self.install_dir, 'version.txt')
-        self.installer_file = self._resolve_script('installer.nsi')
 
         if not self.build_file:
             raise ValueError('Builder is not found for package ' + name)
@@ -166,14 +164,6 @@ def _adjust_path(p):
     if result.find(' ') >= 0:
         raise ValueError('Path contains spaces, unable to continue: ' + result)
     return result
-
-def valid_name(name):
-    if name == '':
-        return False
-    for ch in name:
-        if (not ch.isalnum()) and ch!='-' and ch!='_':
-            return False
-    return True
     
 def _decode_name(name):
     items = name.split('-', 1)
@@ -188,6 +178,26 @@ def _decode_name(name):
         dist_name = short_name
     return short_name, variant_name, dist_name
 
+def _get_package_variants(name):
+    suffix = '-build.py'
+    result = []
+    package_dir = path.join(_package_dir, name)
+    if path.exists(path.join(package_dir, name)):
+        return [name]
+    for builder in glob.iglob(path.join(package_dir, '*' + suffix)):
+        builder_base = path.basename(builder)
+        variant = builder_base[0:-len(suffix)]
+        result.append(name + '-' + variant)
+    return result
+
+def valid_name(name):
+    if name == '':
+        return False
+    for ch in name:
+        if (not ch.isalnum()) and ch!='-' and ch!='_':
+            return False
+    return True
+
 def get(name):
     global _info_cache
     if name in _info_cache:
@@ -196,5 +206,11 @@ def get(name):
     _info_cache[name] = result
     return result
 
+def get_work_dir():
+    return _work_dir
+
 def get_packages():
-    return os.listdir(_package_dir)
+    result = []
+    for name in os.listdir(_package_dir):
+        result.extend(_get_package_variants(name))
+    return result

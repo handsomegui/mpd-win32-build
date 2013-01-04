@@ -1,4 +1,4 @@
-import os, sys, shutil, zipfile
+import inspect, os, sys, shutil, zipfile
 import packagebuild, packageinfo, cmdutil, config, fsutil
 
 from os import path
@@ -17,12 +17,6 @@ def wrap(prefix, items):
 def add_prefix(prefix, items):
     return map(lambda s: prefix + s, items)
 
-def get_action_func(action):
-    action_map = build_action_map()
-    if not action in action_map:
-        raise ValueError('Unknown action: ' + action)
-    return action_map[action]
-
 def clean_dir(dir):
     if not path.exists(dir):
         return
@@ -40,8 +34,8 @@ def git_in_build_dir(info, action):
     if cmdutil.git_check(info.build_dir):
         cmdutil.git(action, work_dir=info.build_dir)
 
-def run_make(target, info):
-    cmdutil.native_make(['-f', info.make_file, target], None)
+def run_make(target):
+    cmdutil.native_make(['-f', make_file, target], None)
 
 def do_build(info):
     packagebuild.run(info)
@@ -77,67 +71,80 @@ def do_pack_zip(info):
             z.write(source, path.join(dist_name, target))
 
 def do_build_all(info):
-    do_generate_makefile(info)
-    run_make('build', info)
+    do_generate_makefile()
+    run_make(info.name)
 
 def do_clean_all(info):
-    do_generate_makefile(info)
-    run_make('clean', info)
+    do_generate_makefile()
+    run_make('clean-' + info.name)
 
 def do_rebuild_all(info):
-    do_generate_makefile(info)
-    run_make('clean', info)
-    run_make('build', info)
+    do_generate_makefile()
+    run_make('clean-' + info.name)
+    run_make(info.name)
 
-def do_generate_makefile(info):
-    dependency_map = info.dependency_map()
+def do_generate_makefile():
+    dependency_map = {}
+    for name in packageinfo.get_packages():
+        info = packageinfo.get(name)
+        dependency_map.update(info.dependency_map())
     names = sorted(dependency_map.iterkeys())
-    build_targets = add_prefix('build-', names)
+    build_targets = names
     clean_targets = add_prefix('clean-', names)
 
-    with open(info.make_file, 'w') as f:
+    with open(make_file, 'w') as f:
         f.write('export BUILDTOOL_PROFILE  := %s\n' % config_profile)
         f.write('export BUILDTOOL_BASE_DIR := %s\n\n' % base_dir)
+
         f.write('buildtool := %s %s\n\n' % (sys.executable, path.abspath(__file__)))
+
         f.write('build := $(buildtool) build\n')
         f.write('clean := $(buildtool) clean\n\n')
 
-        f.write('build: build-%s\n\n' % info.name)
-        f.write('clean: %s\n\n' % join(clean_targets))
+        f.write('_default:\n')
+        f.write('\t@echo No defaults. Please, specify target to build.\n\n')
 
         for name, target in zip(names, build_targets):
-            dependencies = add_prefix('build-', dependency_map[name])
-            f.write('%s: %s\n' % (target, join(dependencies)))
+            f.write('%s: %s\n' % (target, join(dependency_map[name])))
             f.write('\t@$(build) %s\n\n' % name)
 
         for name, target in zip(names, clean_targets):
             f.write('%s:\n' % target)
             f.write('\t@$(clean) %s\n\n' % name)
 
-        f.write('.PHONY: build clean\n')
         f.write('.PHONY: %s\n' % join(build_targets))
         f.write('.PHONY: %s\n' % join(clean_targets))
 
 def build_action_map():
+    prefix = 'do_'
     result = {}
-    for name, symbol in globals().items():
-        if name.startswith('do_'):
-            real_name = name[3:].replace('_', '-')
-            result[real_name] = symbol
+    for name, symbol in globals().iteritems():
+        if name.startswith(prefix):
+            user_name = name[len(prefix):].replace('_', '-')
+            result[user_name] = symbol
     return result
+
+def get_action_func(action):
+    action_map = build_action_map()
+    if not action in action_map:
+        raise ValueError('Unknown action: ' + action)
+    return action_map[action]
 
 def show_usage():
     print 'buildtool -- perform build action on specified target'
     print
-    print 'Usage:   buildtool [action] [target]'
+    print 'Usage:   buildtool action [target]'
     print
     print wrap('Actions: ', build_action_map().keys())
     print
     print wrap('Targets: ', packageinfo.get_packages())
+    print
+    print 'See supplied README file for more details'
 
 def init():
     global config_profile
     global base_dir
+    global make_file
 
     config_profile = os.environ.get('BUILDTOOL_PROFILE', '')
     if config_profile and (not packageinfo.valid_name(config_profile)):
@@ -147,16 +154,23 @@ def init():
 
     config.init(config_profile)
     packageinfo.init(base_dir, config_profile)
+    
+    make_file = path.join(packageinfo.get_work_dir(), 'Makefile')
 
-def run(action, target):
+def run(action, targets):
     action_func = get_action_func(action)
-    info = packageinfo.get(target)
-    action_func(info)
+
+    if inspect.getargspec(action_func).args:
+        if not targets:
+            raise ValueError('No target specified')
+        for t in targets:
+            action_func(packageinfo.get(t))
+    else:
+        action_func()
 
 if __name__=='__main__':
     init()
-    if len(sys.argv) == 3:
-        run(sys.argv[1], sys.argv[2])
-    else:
+    if len(sys.argv) <= 1:
         show_usage()
         sys.exit(1)
+    run(sys.argv[1], sys.argv[2:])
