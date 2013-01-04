@@ -84,10 +84,6 @@ def patch(target_file, patch_file = None):
     cmdutil.patch(target_file_abs, patch_file_abs)
     fsutil.write_marker(marker_file)
 
-def clone(url, rev = 'master'):
-    if _git_clone_once(url, _info.build_dir):
-        cmdutil.git('checkout', [rev], _info.build_dir)
-
 def fetch(url, rev = None, file = None):
     fsutil.make_dir(_info.cache_dir)
     if url.startswith('git://') or url.endswith('.git'):
