@@ -78,6 +78,8 @@ class PackageInfo:
         self.crossbuild_build = _crossbuild_build
         self.crossbuild_host = _crossbuild_host
 
+_info_cache = {}
+
 def init(base_dir, profile):
     _init_crossbuild()
     _init_base_dir(base_dir, profile)
@@ -182,7 +184,12 @@ def _decode_name(name):
     return short_name, variant_name, dist_name
 
 def get(name):
-    return PackageInfo(name)
+    global _info_cache
+    if name in _info_cache:
+        return _info_cache[name]
+    result = PackageInfo(name)
+    _info_cache[name] = result
+    return result
 
 def get_packages():
     return os.listdir(_package_dir)
