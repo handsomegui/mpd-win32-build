@@ -9,18 +9,27 @@ def _exec(app, args, work_dir, extra_env, save_output):
     all_args = [app]
     if args:
         all_args.extend(args)
-    if _output_file and (not save_output):
-        all_args.extend(['>>' + _output_file, '2>&1'])
+
+    all_env = os.environ.copy()
+    if extra_env:
+        all_env.update(extra_env)
+
     cmd = ' '.join(all_args)
 
-    env = os.environ.copy()
-    if extra_env:
-        env.update(extra_env)
+    if _output_file and (not save_output):
+        with open(_output_file, 'a') as f:
+            f.write('\n')
+            if extra_env:
+                for var in sorted(extra_env.iterkeys()):
+                    f.write('%s = %s\n' % (var, extra_env[var]))
+                f.write('\n')
+            f.write('%s\n\n' % cmd)
+        cmd = '%s >>%s 2>&1' % (cmd, _output_file)
 
     if save_output:
-        return subprocess.check_output(cmd, cwd=work_dir, env=env, shell=True)
+        return subprocess.check_output(cmd, cwd=work_dir, env=all_env, shell=True)
     else:
-        subprocess.check_call(cmd, cwd=work_dir, env=env, shell=True)
+        subprocess.check_call(cmd, cwd=work_dir, env=all_env, shell=True)
 
 def _build_exec_path(path_vars):
     paths = []
