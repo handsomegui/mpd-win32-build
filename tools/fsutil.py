@@ -23,6 +23,10 @@ def safe_remove(file):
     if path.exists(file):
         os.remove(file)
 
+def safe_remove_dir(dir):
+    if path.exists(dir):
+        shutil.rmtree(dir)
+
 def glob_remove(pattern):
     for item in glob.iglob(pattern):
         os.remove(item)

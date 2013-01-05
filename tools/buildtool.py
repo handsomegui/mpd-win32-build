@@ -17,14 +17,6 @@ def wrap(prefix, items):
 def add_prefix(prefix, items):
     return map(lambda s: prefix + s, items)
 
-def clean_dir(dir):
-    if not path.exists(dir):
-        return
-    if cmdutil.git_check(dir):
-        cmdutil.git('clean', ['-q', '-f', '-x', '-d'], work_dir=dir)
-    else:
-        shutil.rmtree(dir)
-
 def run_make(target):
     cmdutil.native_make(['-f', _make_file, target], None)
 
@@ -32,12 +24,12 @@ def do_build(info):
     packagebuild.run(info)
 
 def do_clean(info):
-    clean_dir(info.build_dir)
-    clean_dir(info.install_dir)
+    fsutil.safe_remove_dir(info.build_dir)
+    fsutil.safe_remove_dir(info.install_dir)
     fsutil.safe_remove(info.log_file)
 
 def do_clean_cache(info):
-    clean_dir(info.cache_dir)
+    fsutil.safe_remove_dir(info.cache_dir)
 
 def do_rebuild(info):
     do_clean(info)
