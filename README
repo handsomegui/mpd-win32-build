@@ -79,19 +79,13 @@ Target is a package to deal with. Action is one of the following:
   build-all
     Builds specified target and all dependencies.
 
-  clean-all
-    Cleans specified target and all dependencies.
-
-  rebuild-all
-    Shortcut for executing clean-all build-all.
-
   generate-makefile
     Generates make file that could be used to build target and its dependencies
     with additional make options such as -j.
-    This action is implictly executed by any target ending with -all.
+    This action is implictly executed by build-all target.
     It does not require target argument.
 
-  pack-zip
+  build-dist
     Pack specified target and all dependencies to .zip file ready for releasing.
     Target and dependencies are assumed to be built.
 

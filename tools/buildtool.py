@@ -43,7 +43,11 @@ def do_rebuild(info):
     do_clean(info)
     do_build(info)
 
-def do_pack_zip(info):
+def do_build_all(info):
+    do_generate_makefile()
+    run_make(info.name)
+
+def do_build_dist(info):
     version = info.version()
     artifacts = info.artifacts()
     dist_name = '%s-%s-%s' % (info.dist_name, version, info.dist_host)
@@ -53,19 +57,6 @@ def do_pack_zip(info):
         for source, target in artifacts.iteritems():
             z.write(source, path.join(dist_name, target))
     cmdutil.sha1sum(dist_file)
-
-def do_build_all(info):
-    do_generate_makefile()
-    run_make(info.name)
-
-def do_clean_all(info):
-    do_generate_makefile()
-    run_make('clean-' + info.name)
-
-def do_rebuild_all(info):
-    do_generate_makefile()
-    run_make('clean-' + info.name)
-    run_make(info.name)
 
 def do_generate_makefile():
     dependency_map = {}
