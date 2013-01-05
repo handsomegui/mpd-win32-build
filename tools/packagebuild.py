@@ -29,8 +29,7 @@ def build_cmake(options = '', subdir = ''):
 
     if not path.exists(cmake_ok):
         _log('configuring')
-        if path.exists(cmake_dir):
-            shutil.rmtree(cmake_dir)
+        fsutil.safe_remove_dir(cmake_dir)
         fsutil.make_dir(cmake_dir)
         options = _build_cmake_args() + options.split()
         cmdutil.native_exec('cmake', options, work_dir=cmake_dir)
