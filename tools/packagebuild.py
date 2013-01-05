@@ -111,9 +111,9 @@ def fetch(url, rev = None, file = None):
     if url.startswith('git://') or url.endswith('.git'):
         if rev is None:
             raise ValueError('Revision to fetch should be specified')
-        _fetch_git(url, rev)
+        rebuild = _fetch_git(url, rev)
     else:
-        _fetch_archive(url, file)
+        rebuild = _fetch_archive(url, file)
 
 def collect_version(src_file = 'configure.ac'):
     src_file_full = path.join(_info.build_dir, src_file)
@@ -201,6 +201,8 @@ def _fetch_archive(url, file = None):
     downloaded = _download_once(url, file_path)
     if downloaded or _build_dir_empty():
         _untar_to_build_dir(file_path, strip_root_dir=True)
+        return True
+    return False
 
 def _fetch_git(url, rev):
     global _source_rev
@@ -225,6 +227,8 @@ def _fetch_git(url, rev):
 
     if exported or _build_dir_empty():
         _untar_to_build_dir(tar_file)
+        return True
+    return False
 
 def _build_dir_empty():
     return not os.listdir(_info.build_dir)
