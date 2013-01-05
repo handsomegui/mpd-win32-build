@@ -2,6 +2,10 @@ This is a set of scripts to build MPD and friends for Windows.
 They could be used to build MPD natively on Windows
 or by using cross-compiler on Linux.
 
+If you don't want to build MPD manually you can download binary package from
+
+    http://www.musicpd.org/download/win32/
+
 Scripts located in tools directory could be used to write builders
 for other autotools/cmake based projects.
 
