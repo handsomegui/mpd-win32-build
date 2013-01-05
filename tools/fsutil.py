@@ -1,4 +1,4 @@
-import os, glob
+import os, glob, shutil
 
 from os import path
 
@@ -31,9 +31,9 @@ def glob_remove(pattern):
     for item in glob.iglob(pattern):
         os.remove(item)
 
-def write_marker(file):
+def write_stamp(file):
     with open(file, 'w') as f:
-        f.write('marker file for buildtool')
+        f.write('stamp file for buildtool')
 
 def read_file(file):
     with open(file, 'r') as f:
@@ -59,14 +59,4 @@ def read_pairs(file, separator):
             raise ValueError('Unable to parse pair: ' + line)
         pair = (items[0].rstrip(), items[1].lstrip())
         result.append(pair)
-    return result
-
-def max_mtime(dir):
-    result = 0
-    for entry in os.listdir(dir):
-        name = path.join(dir, entry)
-        if path.isdir(name):
-            result = max(result, max_mtime(name))
-        else:
-            result = max(result, path.getmtime(name))
     return result

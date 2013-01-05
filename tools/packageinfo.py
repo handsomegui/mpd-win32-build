@@ -5,15 +5,16 @@ from os import path
 
 class PackageInfo:
     def _read_dependencies(self):
-        deps_file = self._resolve_script('depends.txt')
-        if not deps_file:
+        if self.deps_file:
+            return fsutil.read_lines(self.deps_file)
+        else:
             return []
-        return fsutil.read_lines(deps_file)
 
     def _read_artifacts(self):
-        if not path.exists(self.artifacts_file):
+        if path.exists(self.artifacts_file):
+            return fsutil.read_pairs(self.artifacts_file, '->')
+        else:
             return []
-        return fsutil.read_pairs(self.artifacts_file, '->')
 
     def _resolve_script(self, name):
         if self.variant_name:
@@ -68,9 +69,11 @@ class PackageInfo:
             raise ValueError('Directory is not found for package ' + name)
 
         self.build_file = self._resolve_script('build.py')
+        self.deps_file = self._resolve_script('depends.txt')
         self.log_file = path.join(_log_dir, name + '.log')
         self.artifacts_file = path.join(self.install_dir, 'artifacts.txt')
         self.version_file = path.join(self.install_dir, 'version.txt')
+        self.stamp_file = path.join(self.install_dir, 'stamp.txt')
 
         if not self.build_file:
             raise ValueError('Builder is not found for package ' + name)

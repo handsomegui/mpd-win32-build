@@ -3,6 +3,9 @@ import packageinfo, cmdutil, config, fsutil
 
 from os import path
 
+class UpToDateException(Exception):
+    pass
+
 def run(info):
     global _info
 
@@ -10,13 +13,22 @@ def run(info):
 
     fsutil.make_dir(_info.build_dir)
     fsutil.make_dir(_info.install_dir)
+    fsutil.make_dir(_info.cache_dir)
 
     fsutil.safe_remove(_info.artifacts_file)
     fsutil.safe_remove(_info.version_file)
     fsutil.safe_remove(_info.log_file)
 
     cmdutil.redirect_output(_info.log_file)
-    execfile(_info.build_file, _get_builder_symbols())
+
+    try:
+        execfile(_info.build_file, _get_builder_symbols())
+        updated = True
+    except UpToDateException:
+        updated = False
+
+    if updated:
+        fsutil.write_stamp(_info.stamp_file)
 
 def include(script):
     file = fsutil.resolve_include(_info.build_file, script)
@@ -25,95 +37,63 @@ def include(script):
 def build_cmake(options = '', subdir = ''):
     build_dir = _add_subpath(_info.build_dir, subdir)
     cmake_dir = path.join(build_dir, 'cmake.build')
-    cmake_ok = path.join(build_dir, 'cmake.ok')
+    options = _build_cmake_args() + options.split()
 
-    if not path.exists(cmake_ok):
-        _log('configuring')
-        fsutil.safe_remove_dir(cmake_dir)
-        fsutil.make_dir(cmake_dir)
-        options = _build_cmake_args() + options.split()
-        cmdutil.native_exec('cmake', options, work_dir=cmake_dir)
-        fsutil.write_marker(cmake_ok)
+    fsutil.make_dir(cmake_dir)
 
-    (rebuild, stamp) = _get_make_status(build_dir)
-    if rebuild:
-        _log('making')
-        cmdutil.native_make([], work_dir=cmake_dir)
-        _log('installing')
-        cmdutil.native_make(['install'], work_dir=cmake_dir)
-        fsutil.write_marker(stamp)
-    else:
-        _log('up to date')
+    cmdutil.native_exec('cmake', options, work_dir=cmake_dir)
+    cmdutil.native_make([], work_dir=cmake_dir)
+    cmdutil.native_make(['install'], work_dir=cmake_dir)
 
 def build(static_lib = False, shared_lib = False, options = '', crossbuild_options=True, libs = '', cflags = '', subdir = ''):
     if static_lib and shared_lib:
         raise ValueError('Both static_lib and shared_lib options are specified')
 
     build_dir = _add_subpath(_info.build_dir, subdir)
-    configure_ok = path.join(build_dir, 'configure.ok')
+    all_options = [_find_configure(build_dir), '--prefix=' + cmdutil.to_unix_path(_info.install_dir)]
+    if _info.crossbuild and crossbuild_options:
+        all_options.extend(['--build=' + _info.crossbuild_build, '--host=' + _info.crossbuild_host])
+    if static_lib:
+        all_options.extend(['--enable-static', '--disable-shared'])
+    if shared_lib:
+        all_options.extend(['--enable-shared', '--disable-static'])
+    all_options.extend(options.split())
+    all_options.extend(config.get_list('options'))
+    all_options.extend(config.get_list(_info.name + '-options'))
+    env = _build_configure_env(libs.split(), cflags.split())
 
-    if not path.exists(configure_ok):
-        _log('configuring')
-        all_options = [_find_configure(build_dir), '--prefix=' + cmdutil.to_unix_path(_info.install_dir)]
-        if _info.crossbuild and crossbuild_options:
-            all_options.extend(['--build=' + _info.crossbuild_build, '--host=' + _info.crossbuild_host])
-        if static_lib:
-            all_options.extend(['--enable-static', '--disable-shared'])
-        if shared_lib:
-            all_options.extend(['--enable-shared', '--disable-static'])
-        all_options.extend(options.split())
-        all_options.extend(config.get_list('options'))
-        all_options.extend(config.get_list(_info.name + '-options'))
-        env = _build_configure_env(libs.split(), cflags.split())
-        cmdutil.unix_exec('sh', all_options, work_dir=build_dir, extra_env=env)
-        fsutil.write_marker(configure_ok)
-
-    (rebuild, stamp) = _get_make_status(build_dir)
-    if rebuild:
-        _log('making')
-        cmdutil.unix_make([], work_dir=build_dir)
-        _log('installing')
-        cmdutil.unix_make(['install'], work_dir=build_dir)
-        fsutil.write_marker(stamp)
-    else:
-        _log('up to date')
+    cmdutil.unix_exec('sh', all_options, work_dir=build_dir, extra_env=env)
+    cmdutil.unix_make([], work_dir=build_dir)
+    cmdutil.unix_make(['install'], work_dir=build_dir)
 
 def make(args):
     build_dir = _info.build_dir
-    (rebuild, stamp) = _get_make_status(build_dir)
-    if rebuild:
-        _log('making and installing')
-        cmdutil.unix_make(args.split(), work_dir=build_dir)
-        fsutil.write_marker(stamp)
-    else:
-        _log('up to date')
+    cmdutil.unix_make(args.split(), work_dir=build_dir)
 
 def remove(file):
-    target = path.join(_info.build_dir, file)
-    marker = target + '.removed'
-    if path.exists(target) and not path.exists(marker):
-        os.remove(target)
-        fsutil.write_marker(marker)
+    fsutil.safe_remove(file)
 
 def patch(target_file, patch_file = None):
     if patch_file is None:
         patch_file = path.basename(target_file) + '.patch'
     target_file_abs = path.join(_info.build_dir, target_file)
     patch_file_abs = path.join(_info.script_dir, patch_file)
-    marker_file = target_file_abs + '.patched'
-    if path.exists(marker_file):
-        return
     cmdutil.patch(target_file_abs, patch_file_abs)
-    fsutil.write_marker(marker_file)
 
 def fetch(url, rev = None, file = None):
-    fsutil.make_dir(_info.cache_dir)
+    if not _is_up_to_date():
+        _reset_build_dirs()
     if url.startswith('git://') or url.endswith('.git'):
         if rev is None:
             raise ValueError('Revision to fetch should be specified')
         rebuild = _fetch_git(url, rev)
     else:
         rebuild = _fetch_archive(url, file)
+    if rebuild:
+        _log('building')
+    else:
+        _log('up to date')
+        raise UpToDateException()
 
 def collect_version(src_file = 'configure.ac'):
     src_file_full = path.join(_info.build_dir, src_file)
@@ -179,14 +159,6 @@ def _collect_artifacts(patterns, source_dir, target_dir):
                 f.write('%s -> %s\n' % (path.normpath(source), path.normpath(target)))
                 found = True
     return found
-
-def _get_make_status(build_dir):
-    stamp = path.join(build_dir, 'make.ok')
-    if path.exists(stamp):
-        rebuild = fsutil.max_mtime(build_dir) > path.getmtime(stamp)
-    else:
-        rebuild = True
-    return (rebuild, stamp)
 
 def _add_subpath(base, subpath):
     if subpath:
@@ -306,9 +278,7 @@ def _build_configure_env(user_libs, user_cflags):
     return result
 
 def _untar_to_build_dir(tar_file, strip_root_dir = False):
-    if path.exists(_info.build_dir):
-        shutil.rmtree(_info.build_dir)
-    os.makedirs(_info.build_dir)
+    _reset_build_dirs()
     cmdutil.untar(tar_file, target_dir=_info.build_dir, strip_root_dir=strip_root_dir)
 
 def _guess_name(url):
@@ -340,7 +310,27 @@ def _get_gcc_path():
     else:
         gcc = 'gcc'
     return cmdutil.which(gcc)
-    
+
+def _is_up_to_date():
+    if not path.exists(_info.stamp_file):
+        return False
+    stamp_mtime = path.getmtime(_info.stamp_file)
+    max_mtime = 0
+    for dep_name in _info.dependency_map().iterkeys():
+        dep_info = packageinfo.get(dep_name)
+        if not path.exists(dep_info.stamp_file):
+            return False
+        for f in [dep_info.stamp_file, dep_info.build_file, dep_info.deps_file]:
+            if f and path.exists(f):
+                max_mtime = max(max_mtime, path.getmtime(f))
+    return stamp_mtime >= max_mtime
+
+def _reset_build_dirs():
+    fsutil.safe_remove_dir(_info.build_dir)
+    fsutil.safe_remove_dir(_info.install_dir)
+    fsutil.make_dir(_info.build_dir)
+    fsutil.make_dir(_info.install_dir)
+
 def _log(message):
     print "buildtool: %s %s" % (_info.name.ljust(16), message)
 
