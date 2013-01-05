@@ -26,7 +26,7 @@ def clean_dir(dir):
         shutil.rmtree(dir)
 
 def run_make(target):
-    cmdutil.native_make(['-f', make_file, target], None)
+    cmdutil.native_make(['-f', _make_file, target], None)
 
 def do_build(info):
     packagebuild.run(info)
@@ -67,9 +67,9 @@ def do_generate_makefile():
     build_targets = names
     clean_targets = add_prefix('clean-', names)
 
-    with open(make_file, 'w') as f:
-        f.write('export BUILDTOOL_PROFILE  := %s\n' % config_profile)
-        f.write('export BUILDTOOL_BASE_DIR := %s\n\n' % base_dir)
+    with open(_make_file, 'w') as f:
+        f.write('export BUILDTOOL_PROFILE  := %s\n' % _config_profile)
+        f.write('export BUILDTOOL_BASE_DIR := %s\n\n' % _base_dir)
 
         f.write('buildtool := %s %s\n\n' % (sys.executable, path.abspath(__file__)))
 
@@ -117,20 +117,20 @@ def show_usage():
     print 'See supplied README file for more details'
 
 def init():
-    global config_profile
-    global base_dir
-    global make_file
+    global _config_profile
+    global _base_dir
+    global _make_file
 
-    config_profile = os.environ.get('BUILDTOOL_PROFILE', '')
-    if config_profile and (not packageinfo.valid_name(config_profile)):
-        raise ValueError('Invalid profile name: ' + config_profile)
+    _config_profile = os.environ.get('BUILDTOOL_PROFILE', '')
+    if _config_profile and (not packageinfo.valid_name(_config_profile)):
+        raise ValueError('Invalid profile name: ' + _config_profile)
     
-    base_dir = os.environ.get('BUILDTOOL_BASE_DIR', os.getcwd())
+    _base_dir = os.environ.get('BUILDTOOL_BASE_DIR', os.getcwd())
 
-    config.init(config_profile)
-    packageinfo.init(base_dir, config_profile)
+    config.init(_config_profile)
+    packageinfo.init(_base_dir, _config_profile)
     
-    make_file = path.join(packageinfo.get_work_dir(), 'Makefile')
+    _make_file = path.join(packageinfo.get_work_dir(), 'Makefile')
 
 def run(action, targets):
     action_func = get_action_func(action)
