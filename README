@@ -94,10 +94,12 @@ Examples:
   Building MPD package from latest released tarball:
 
     $ ./buildtool build-all mpd-release
-    $ ./buildtool pack mpd-release
+    $ ./buildtool build-dist mpd-release
 
   The same but use 4 build jobs at once:
 
     $ ./buildtool generate-makefile
-    $ make -j 4 -f work/Makefile mpd-release
-    $ ./buildtool pack mpd-release
+    $ cd work
+    $ make -j 4 mpd-release
+    $ cd ..
+    $ ./buildtool build-dist mpd-release
