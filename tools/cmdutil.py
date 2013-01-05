@@ -143,6 +143,12 @@ def which(command):
             return full_path
     return None
 
+def sha1sum(file):
+    args = ['--binary', path.basename(file)]
+    output = unix_exec('sha1sum', args, work_dir=path.dirname(file), save_output=True)
+    with open(file + '.sha1', 'wb') as f:
+        f.write(output)
+
 def gcc_lib_dir(gcc):
     output = native_exec(gcc, ['-print-libgcc-file-name'], save_output=True)
     return path.dirname(path.normpath(output.strip()))

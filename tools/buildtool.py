@@ -52,6 +52,7 @@ def do_pack_zip(info):
     with zipfile.ZipFile(dist_file, mode='w', compression=zipfile.ZIP_DEFLATED) as z:
         for source, target in artifacts.iteritems():
             z.write(source, path.join(dist_name, target))
+    cmdutil.sha1sum(dist_file)
 
 def do_build_all(info):
     do_generate_makefile()
