@@ -11,10 +11,7 @@ def run(info):
 
     _info = info
 
-    fsutil.make_dir(_info.cache_dir)
-    fsutil.make_dir(_info.build_dir)
-    fsutil.make_dir(_info.install_dir)
-
+    _init_work_dir()
     fsutil.safe_remove(_info.log_file)
     cmdutil.redirect_output(_info.log_file)
 
@@ -79,7 +76,7 @@ def patch(target_file, patch_file = None):
 
 def fetch(url, rev = None, file = None):
     if not _is_up_to_date():
-        _reset_build_dirs()
+        _reset_work_dir()
     if url.startswith('git://') or url.endswith('.git'):
         if rev is None:
             raise ValueError('Revision to fetch should be specified')
@@ -275,7 +272,7 @@ def _build_configure_env(user_libs, user_cflags):
     return result
 
 def _untar_to_build_dir(tar_file, strip_root_dir = False):
-    _reset_build_dirs()
+    _reset_work_dir()
     cmdutil.untar(tar_file, target_dir=_info.build_dir, strip_root_dir=strip_root_dir)
 
 def _guess_name(url):
@@ -321,12 +318,16 @@ def _is_up_to_date():
             if f and path.exists(f):
                 max_mtime = max(max_mtime, path.getmtime(f))
     return stamp_mtime >= max_mtime
+    
+def _reset_work_dir():
+    fsutil.safe_remove_dir(_info.work_dir)
+    _init_work_dir()
 
-def _reset_build_dirs():
-    fsutil.safe_remove_dir(_info.build_dir)
-    fsutil.safe_remove_dir(_info.install_dir)
+def _init_work_dir():
+    fsutil.make_dir(_info.work_dir)
     fsutil.make_dir(_info.build_dir)
     fsutil.make_dir(_info.install_dir)
+    fsutil.make_dir(_info.dist_dir)
 
 def _log(message):
     print "buildtool: %s %s" % (_info.name.ljust(16), message)

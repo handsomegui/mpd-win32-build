@@ -24,9 +24,7 @@ def do_build(info):
     packagebuild.run(info)
 
 def do_clean(info):
-    fsutil.safe_remove_dir(info.build_dir)
-    fsutil.safe_remove_dir(info.install_dir)
-    fsutil.safe_remove(info.log_file)
+    fsutil.safe_remove_dir(info.work_dir)
 
 def do_clean_cache(info):
     fsutil.safe_remove_dir(info.cache_dir)

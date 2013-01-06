@@ -57,23 +57,26 @@ class PackageInfo:
 
         self.name = name
         self.short_name, self.variant_name = _decode_name(name)
+
         self.dist_host = _dist_host
 
+        self.work_dir = path.join(_work_dir, name)
+        self.build_dir  = path.join(self.work_dir, 'build')
+        self.install_dir = path.join(self.work_dir, 'install')
+        self.dist_dir = path.join(self.work_dir, 'dist')
         self.script_dir = path.join(_package_dir, self.short_name)
-        self.build_dir  = path.join(_build_dir, name)
-        self.install_dir = path.join(_install_dir, name)
         self.cache_dir  = path.join(_cache_dir, name)
-        self.dist_dir = _dist_dir
 
         if not path.exists(self.script_dir):
             raise ValueError('Directory is not found for package ' + name)
 
         self.build_file = self._resolve_script('build.py')
         self.deps_file = self._resolve_script('depends.txt')
-        self.log_file = path.join(_log_dir, name + '.log')
-        self.artifacts_file = path.join(self.install_dir, 'artifacts.txt')
-        self.version_file = path.join(self.install_dir, 'version.txt')
-        self.stamp_file = path.join(self.install_dir, 'stamp.txt')
+
+        self.stamp_file = path.join(self.work_dir, 'stamp.txt')
+        self.artifacts_file = path.join(self.work_dir, 'artifacts.txt')
+        self.version_file = path.join(self.work_dir, 'version.txt')
+        self.log_file = path.join(self.work_dir, 'build.log')
 
         if not self.build_file:
             raise ValueError('Builder is not found for package ' + name)
@@ -88,8 +91,7 @@ _info_cache = {}
 
 def init(base_dir, profile):
     _init_crossbuild()
-    _init_base_dir(base_dir, profile)
-    _init_work_dir()
+    _init_dirs(base_dir, profile)
 
 def _init_crossbuild():
     global _crossbuild
@@ -112,7 +114,7 @@ def _init_crossbuild():
     else:
         _dist_host = 'win32'
 
-def _init_base_dir(base_dir, profile):
+def _init_dirs(base_dir, profile):
     global _base_dir
     global _package_dir
     global _cache_dir
@@ -122,7 +124,7 @@ def _init_base_dir(base_dir, profile):
     _package_dir = path.join(_base_dir, 'packages')
 
     if not path.exists(_package_dir):
-        raise ValueError('Packages directory is not found: ' + _package_dir)
+        raise ValueError('Package directory is not found: ' + _package_dir)
         
     if profile:
         work = 'work-' + profile
@@ -132,24 +134,8 @@ def _init_base_dir(base_dir, profile):
     _cache_dir = _resolve_dir('cache_dir', 'cache')
     _work_dir = _resolve_dir('work_dir', work)
 
-    fsutil.make_dir(_work_dir)
     fsutil.make_dir(_cache_dir)
-
-def _init_work_dir():
-    global _build_dir
-    global _dist_dir
-    global _install_dir
-    global _log_dir
-
-    _build_dir = path.join(_work_dir, 'build')
-    _dist_dir = path.join(_work_dir, 'dist')
-    _install_dir = path.join(_work_dir, 'install')
-    _log_dir = path.join(_work_dir, 'log')
-
-    fsutil.make_dir(_build_dir)
-    fsutil.make_dir(_dist_dir)
-    fsutil.make_dir(_install_dir)
-    fsutil.make_dir(_log_dir)
+    fsutil.make_dir(_work_dir)
 
 def _resolve_dir(var_name, fallback):
     user_dir = config.get(var_name)
