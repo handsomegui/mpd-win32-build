@@ -56,7 +56,7 @@ class PackageInfo:
             raise ValueError('Invalid package name: ' + name)
 
         self.name = name
-        self.short_name, self.variant_name, self.dist_name = _decode_name(name)
+        self.short_name, self.variant_name = _decode_name(name)
         self.dist_host = _dist_host
 
         self.script_dir = path.join(_package_dir, self.short_name)
@@ -175,11 +175,7 @@ def _decode_name(name):
         variant_name = items[1]
     else:
         variant_name = ''
-    if variant_name != 'release':
-        dist_name = name
-    else:
-        dist_name = short_name
-    return short_name, variant_name, dist_name
+    return short_name, variant_name
 
 def _get_package_variants(name):
     suffix = '-build.py'

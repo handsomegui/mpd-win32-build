@@ -42,7 +42,7 @@ def do_build_all(info):
 def do_build_dist(info):
     version = info.version()
     artifacts = info.artifacts()
-    dist_name = '%s-%s-%s' % (info.dist_name, version, info.dist_host)
+    dist_name = '%s-%s-%s' % (info.short_name, version, info.dist_host)
     dist_file = path.join(info.dist_dir, dist_name + '.zip')
 
     with zipfile.ZipFile(dist_file, mode='w', compression=zipfile.ZIP_DEFLATED) as z:
