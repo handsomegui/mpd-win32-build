@@ -71,6 +71,11 @@ def do_generate_makefile():
         f.write('_default:\n')
         f.write('\t@echo No defaults. Please, specify target to build.\n\n')
 
+        f.write('refresh:\n')
+        f.write('\t@$(buildtool) generate-makefile\n\n')
+
+        f.write('clean: %s\n\n' % join(clean_targets))
+
         for name, target in zip(names, build_targets):
             f.write('%s: %s\n' % (target, join(dependency_map[name])))
             f.write('\t@$(build) %s\n\n' % name)
@@ -79,6 +84,7 @@ def do_generate_makefile():
             f.write('%s:\n' % target)
             f.write('\t@$(clean) %s\n\n' % name)
 
+        f.write('.PHONY: _default refresh clean\n')
         f.write('.PHONY: %s\n' % join(build_targets))
         f.write('.PHONY: %s\n' % join(clean_targets))
 
