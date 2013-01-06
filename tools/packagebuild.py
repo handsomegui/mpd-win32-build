@@ -11,14 +11,11 @@ def run(info):
 
     _info = info
 
+    fsutil.make_dir(_info.cache_dir)
     fsutil.make_dir(_info.build_dir)
     fsutil.make_dir(_info.install_dir)
-    fsutil.make_dir(_info.cache_dir)
 
-    fsutil.safe_remove(_info.artifacts_file)
-    fsutil.safe_remove(_info.version_file)
     fsutil.safe_remove(_info.log_file)
-
     cmdutil.redirect_output(_info.log_file)
 
     try:
