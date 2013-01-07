@@ -89,7 +89,7 @@ def fetch(url, rev = None, file = None):
         _log('up to date')
         raise UpToDateException()
 
-def collect_version(src_file = 'configure.ac'):
+def collect_version(src_file = 'configure.ac', include_rev = False):
     src_file_full = path.join(_info.build_dir, src_file)
     if not path.exists(src_file_full):
         raise ValueError('File is not found: ' + src_file)
@@ -98,7 +98,9 @@ def collect_version(src_file = 'configure.ac'):
     if len(results) != 1:
         raise ValueError('Unable to extract version')
     version = results[0]
-    if _source_rev:
+    if include_rev:
+        if not _source_rev:
+            raise ValueError('Unable to include source revision in version')
         version += '-' + _source_rev
     with open(_info.version_file, 'w') as f:
         f.write(version)
