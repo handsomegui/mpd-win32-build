@@ -10,6 +10,7 @@ depends += lame
 depends += mad
 depends += mms
 depends += mpg123
+depends += musepack
 depends += ogg
 depends += openal
 depends += samplerate

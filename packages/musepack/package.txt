@@ -1,0 +1,1 @@
+source = http://files.musepack.net/source/musepack_src_r475.tar.gz
