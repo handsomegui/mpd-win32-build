@@ -17,9 +17,6 @@ def wrap(prefix, items):
 def add_prefix(prefix, items):
     return map(lambda s: prefix + s, items)
 
-def run_make(target):
-    cmdutil.native_make(['-f', _make_file, target], None)
-
 def check_stamp(info):
     if not path.exists(info.stamp_file):
         return False
@@ -58,7 +55,8 @@ def do_rebuild(info):
 
 def do_build_all(info):
     do_generate_makefile()
-    run_make(info.name)
+    args = ['-j', config.get('build_jobs', '1'), info.name]
+    cmdutil.native_make(args, packageinfo.get_work_dir())
 
 def do_build_dist(info):
     version = info.version()
@@ -80,7 +78,8 @@ def do_generate_makefile():
     build_targets = names
     clean_targets = add_prefix('clean-', names)
 
-    with open(_make_file, 'w') as f:
+    target_file = path.join(packageinfo.get_work_dir(), 'Makefile')
+    with open(target_file, 'w') as f:
         f.write('export BUILDTOOL_PROFILE  := %s\n' % _config_profile)
         f.write('export BUILDTOOL_BASE_DIR := %s\n\n' % _base_dir)
 
@@ -138,7 +137,6 @@ def show_usage():
 def init():
     global _config_profile
     global _base_dir
-    global _make_file
 
     _config_profile = os.environ.get('BUILDTOOL_PROFILE', '')
     if _config_profile and (not packageinfo.valid_name(_config_profile)):
@@ -148,8 +146,6 @@ def init():
 
     config.init(_config_profile)
     packageinfo.init(_base_dir, _config_profile)
-    
-    _make_file = path.join(packageinfo.get_work_dir(), 'Makefile')
 
 def run(action, targets):
     action_func = get_action_func(action)

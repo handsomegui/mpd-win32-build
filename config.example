@@ -25,6 +25,10 @@
 # Defines any additional flags to pass to configure script.
 # options = --with-foo=/path/to/foo
 
+# Defines number of build jobs when executing 'build-all' action (default is 1).
+# Each individual library/application is still compiled using one job.
+# build_jobs = 2
+
 # Defines any additional directories to prepend to PATH.
 # Entries could be merged with +=.
 # path += C:\devtools\mingw\bin
