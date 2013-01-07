@@ -165,6 +165,7 @@ def _write_crossbuild_file(file):
         f.write('SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)\n')
 
 def _build_configure_env(user_libs, user_cflags):
+    paths = []
     libs = []
     cflags = []
     pkg_config_paths = []
@@ -173,6 +174,7 @@ def _build_configure_env(user_libs, user_cflags):
         if dep==_info.name:
             continue
         p = packageinfo.get(dep).install_dir
+        paths.append(path.join(p, 'bin'))
         libs.append('-L' + cmdutil.to_unix_path(path.join(p, 'lib')))
         cflags.append('-I' + cmdutil.to_unix_path(path.join(p, 'include')))
         pkg_config_paths.append(cmdutil.to_unix_path(path.join(p, 'lib', 'pkgconfig')))
@@ -184,6 +186,7 @@ def _build_configure_env(user_libs, user_cflags):
     lenv_cflags = config.get_list(_info.name + '-cflags')
 
     result = {
+        'PATH'            : os.pathsep.join(paths),
         'LIBS'            : ' '.join(libs + user_libs + env_libs + lenv_libs),
         'CFLAGS'          : ' '.join(cflags + user_cflags + env_cflags + lenv_cflags),
         'PKG_CONFIG_PATH' : ':'.join(pkg_config_paths),

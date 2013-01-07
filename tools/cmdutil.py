@@ -44,7 +44,11 @@ def _add_exec_path(env, exec_path):
     result = {}
     if env:
         result.update(env)
-    result['PATH'] = exec_path
+    old_path = result.get('PATH', '')
+    if old_path:
+        result['PATH'] = exec_path + os.pathsep + old_path
+    else:
+        result['PATH'] = exec_path
     return result
 
 def _native_exec_path():
