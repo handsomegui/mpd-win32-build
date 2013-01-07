@@ -1,0 +1,2 @@
+source = git://git.musicpd.org/master/libmpdclient.git
+source_rev = master

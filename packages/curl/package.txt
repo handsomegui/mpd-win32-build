@@ -1,0 +1,2 @@
+source = http://curl.haxx.se/download/curl-7.28.1.tar.lzma
+depends = zlib

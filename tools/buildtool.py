@@ -1,5 +1,5 @@
 import inspect, os, sys, shutil, zipfile
-import packagebuild, packageinfo, cmdutil, config, fsutil
+import packagebuild, packageinfo, packagefetch, cmdutil, config, fsutil
 
 from os import path
 from textwrap import TextWrapper
@@ -20,8 +20,31 @@ def add_prefix(prefix, items):
 def run_make(target):
     cmdutil.native_make(['-f', _make_file, target], None)
 
+def check_stamp(info):
+    if not path.exists(info.stamp_file):
+        return False
+    stamp_mtime = path.getmtime(info.stamp_file)
+    max_mtime = 0
+    for dep_name in info.dependency_map().iterkeys():
+        dep_info = packageinfo.get(dep_name)
+        for f in [dep_info.stamp_file, dep_info.package_file, dep_info.build_file]:
+            if not path.exists(dep_info.stamp_file):
+                return False
+            max_mtime = max(max_mtime, path.getmtime(f))
+    return stamp_mtime >= max_mtime
+
+def log(info, message):
+    print "buildtool: %s %s" % (info.name.ljust(16), message)
+
 def do_build(info):
-    packagebuild.run(info)
+    log(info, 'checking')
+    if packagefetch.fetch(info, not check_stamp(info)):
+        log(info, 'building')
+        packagebuild.run(info)
+        fsutil.write_stamp(info.stamp_file)
+        log(info, 'done')
+    else:
+        log(info, 'up to date')
 
 def do_clean(info):
     fsutil.safe_remove_dir(info.work_dir)

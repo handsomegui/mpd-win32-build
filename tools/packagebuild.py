@@ -3,26 +3,13 @@ import packageinfo, cmdutil, config, fsutil
 
 from os import path
 
-class UpToDateException(Exception):
-    pass
-
 def run(info):
     global _info
-
     _info = info
-
-    _init_work_dir()
+    _info.init_dirs()
     fsutil.safe_remove(_info.log_file)
     cmdutil.redirect_output(_info.log_file)
-
-    try:
-        execfile(_info.build_file, _get_builder_symbols())
-        updated = True
-    except UpToDateException:
-        updated = False
-
-    if updated:
-        fsutil.write_stamp(_info.stamp_file)
+    execfile(_info.build_file, _get_builder_symbols())
 
 def include(script):
     file = fsutil.resolve_include(_info.build_file, script)
@@ -74,21 +61,6 @@ def patch(target_file, patch_file = None):
     patch_file_abs = path.join(_info.script_dir, patch_file)
     cmdutil.patch(target_file_abs, patch_file_abs)
 
-def fetch(url, rev = None, file = None):
-    if not _is_up_to_date():
-        _reset_work_dir()
-    if url.startswith('git://') or url.endswith('.git'):
-        if rev is None:
-            raise ValueError('Revision to fetch should be specified')
-        rebuild = _fetch_git(url, rev)
-    else:
-        rebuild = _fetch_archive(url, file)
-    if rebuild:
-        _log('building')
-    else:
-        _log('up to date')
-        raise UpToDateException()
-
 def collect_version(src_file = 'configure.ac', include_rev = False):
     src_file_full = path.join(_info.build_dir, src_file)
     if not path.exists(src_file_full):
@@ -99,9 +71,9 @@ def collect_version(src_file = 'configure.ac', include_rev = False):
         raise ValueError('Unable to extract version')
     version = results[0]
     if include_rev:
-        if not _source_rev:
+        if not _info.source_rev:
             raise ValueError('Unable to include source revision in version')
-        version += '-' + _source_rev
+        version += '-' + _info.source_rev
     with open(_info.version_file, 'w') as f:
         f.write(version)
 
@@ -161,45 +133,6 @@ def _add_subpath(base, subpath):
         return path.join(base, subpath)
     else:
         return base
-
-def _fetch_archive(url, file = None):
-    if file is None:
-        file = _guess_name(url)
-    file_path = path.join(_info.cache_dir, file)
-    downloaded = _download_once(url, file_path)
-    if downloaded or _build_dir_empty():
-        _untar_to_build_dir(file_path, strip_root_dir=True)
-        return True
-    return False
-
-def _fetch_git(url, rev):
-    global _source_rev
-
-    repo_dir = path.join(_info.cache_dir, 'mirror.git')
-    if cmdutil.git_check(repo_dir):
-        _log('fetching')
-        cmdutil.git('fetch', ['--all'], work_dir=repo_dir)
-    else:
-        _log('cloning')
-        cmdutil.git('clone', ['--mirror', url, repo_dir])
-
-    _source_rev = cmdutil.git_short_rev(repo_dir, rev)
-    tar_file = path.join(_info.cache_dir, 'rev-%s.tar' % _source_rev)
-    tar_glob = path.join(_info.cache_dir, 'rev-*.tar')
-    exported = False
-
-    if not path.exists(tar_file):
-        fsutil.glob_remove(tar_glob)
-        cmdutil.git('archive', ['-o', tar_file, _source_rev], work_dir=repo_dir)
-        exported = True
-
-    if exported or _build_dir_empty():
-        _untar_to_build_dir(tar_file)
-        return True
-    return False
-
-def _build_dir_empty():
-    return not os.listdir(_info.build_dir)
 
 def _build_cmake_args():
     if cmdutil.on_windows:
@@ -273,26 +206,6 @@ def _build_configure_env(user_libs, user_cflags):
 
     return result
 
-def _untar_to_build_dir(tar_file, strip_root_dir = False):
-    _reset_work_dir()
-    cmdutil.untar(tar_file, target_dir=_info.build_dir, strip_root_dir=strip_root_dir)
-
-def _guess_name(url):
-    download_suffix = '/download'
-    if url.startswith('http://sourceforge.net') and url.endswith(download_suffix):
-        url = url[0:-len(download_suffix)]
-    pos = url.rfind('/')
-    if pos < 0 or pos == len(url) - 1:
-        raise ValueError('Unable to extract file name from url: ' + url)
-    return urllib.unquote(url[pos + 1:])
-
-def _download_once(url, file):
-    if path.exists(file):
-        return False
-    _log('downloading')
-    cmdutil.wget(url, file)
-    return True
-
 def _find_configure(build_dir):
     items = ['configure', 'autogen.sh']
     for i in items:
@@ -306,33 +219,6 @@ def _get_gcc_path():
     else:
         gcc = 'gcc'
     return cmdutil.which(gcc)
-
-def _is_up_to_date():
-    if not path.exists(_info.stamp_file):
-        return False
-    stamp_mtime = path.getmtime(_info.stamp_file)
-    max_mtime = 0
-    for dep_name in _info.dependency_map().iterkeys():
-        dep_info = packageinfo.get(dep_name)
-        if not path.exists(dep_info.stamp_file):
-            return False
-        for f in [dep_info.stamp_file, dep_info.build_file, dep_info.deps_file]:
-            if f and path.exists(f):
-                max_mtime = max(max_mtime, path.getmtime(f))
-    return stamp_mtime >= max_mtime
-    
-def _reset_work_dir():
-    fsutil.safe_remove_dir(_info.work_dir)
-    _init_work_dir()
-
-def _init_work_dir():
-    fsutil.make_dir(_info.work_dir)
-    fsutil.make_dir(_info.build_dir)
-    fsutil.make_dir(_info.install_dir)
-    fsutil.make_dir(_info.dist_dir)
-
-def _log(message):
-    print "buildtool: %s %s" % (_info.name.ljust(16), message)
 
 def _is_builder_symbol(obj):
     return (inspect.isfunction(obj)

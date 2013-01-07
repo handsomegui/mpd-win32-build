@@ -1,5 +1,3 @@
-fetch('http://ffmpeg.org/releases/ffmpeg-1.0.1.tar.bz2')
-
 # build options are taken from
 # https://github.com/lalinsky/build-scripts/blob/master/ffmpeg/common.sh
 

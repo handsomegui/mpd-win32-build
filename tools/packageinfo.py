@@ -4,12 +4,6 @@ import config, cmdutil, fsutil
 from os import path
 
 class PackageInfo:
-    def _read_dependencies(self):
-        if self.deps_file:
-            return fsutil.read_lines(self.deps_file)
-        else:
-            return []
-
     def _read_artifacts(self):
         if path.exists(self.artifacts_file):
             return fsutil.read_pairs(self.artifacts_file, '->')
@@ -25,7 +19,7 @@ class PackageInfo:
         return None
 
     def dependency_map(self):
-        if self.dep_map:
+        if self.dep_map is not None:
             return self.dep_map
         result = {}
         next = [self.name]
@@ -33,7 +27,7 @@ class PackageInfo:
             name = next.pop()
             if name in result:
                 continue
-            deps = get(name)._read_dependencies()
+            deps = get(name).depends
             result[name] = deps
             next.extend(deps)
         self.dep_map = result
@@ -50,6 +44,16 @@ class PackageInfo:
         if not path.exists(self.version_file):
             raise ValueError('Version file \'%s\' is not found' % self.version_file)
         return fsutil.read_file(self.version_file).strip()
+        
+    def init_dirs(self):
+        fsutil.make_dir(self.work_dir)
+        fsutil.make_dir(self.build_dir)
+        fsutil.make_dir(self.install_dir)
+        fsutil.make_dir(self.dist_dir)
+
+    def reset_dirs(self):
+        fsutil.safe_remove_dir(self.work_dir)
+        self.init_dirs()
 
     def __init__(self, name):
         if not valid_name(name):
@@ -70,21 +74,32 @@ class PackageInfo:
         if not path.exists(self.script_dir):
             raise ValueError('Directory is not found for package ' + name)
 
+        self.package_file = self._resolve_script('package.txt')
         self.build_file = self._resolve_script('build.py')
-        self.deps_file = self._resolve_script('depends.txt')
+
+        if not self.package_file:
+            raise ValueError('Package definition is not found for package ' + name)
+        if not self.build_file:
+            raise ValueError('Build script is not found for package ' + name)
 
         self.stamp_file = path.join(self.work_dir, 'stamp.txt')
         self.artifacts_file = path.join(self.work_dir, 'artifacts.txt')
         self.version_file = path.join(self.work_dir, 'version.txt')
         self.log_file = path.join(self.work_dir, 'build.log')
 
-        if not self.build_file:
-            raise ValueError('Builder is not found for package ' + name)
-
         self.crossbuild = _crossbuild
         self.crossbuild_build = _crossbuild_build
         self.crossbuild_host = _crossbuild_host
-        
+
+        options = config.load(self.package_file)
+
+        self.depends = options.get('depends', '').split()
+        self.enable_dist = options.get('enable_dist', '')=='true'
+
+        self.source = options.get('source', '')
+        self.source_rev = options.get('source_rev', '')
+        self.source_file = options.get('source_file', '')
+
         self.dep_map = None
 
 _info_cache = {}

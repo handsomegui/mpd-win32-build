@@ -1,0 +1,3 @@
+source = git://git.xiph.org/flac.git
+source_rev = f20164e41ed
+depends = ogg

@@ -1,0 +1,2 @@
+source = http://sourceforge.net/projects/libmms/files/libmms/0.6.2/libmms-0.6.2.tar.gz/download
+depends = iconv glib

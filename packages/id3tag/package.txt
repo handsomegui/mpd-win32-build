@@ -1,0 +1,3 @@
+source = git://gitorious.org/mad/libid3tag.git
+source_rev = 8766716
+depends = zlib

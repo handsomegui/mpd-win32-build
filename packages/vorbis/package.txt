@@ -1,0 +1,2 @@
+source = http://downloads.xiph.org/releases/vorbis/libvorbis-1.3.3.tar.xz
+depends = ogg

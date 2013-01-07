@@ -1,0 +1,1 @@
+source = http://ffmpeg.org/releases/ffmpeg-1.0.1.tar.bz2

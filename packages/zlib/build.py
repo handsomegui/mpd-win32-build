@@ -1,7 +1,5 @@
 import cmdutil
 
-fetch('http://sourceforge.net/projects/libpng/files/zlib/1.2.7/zlib-1.2.7.tar.bz2/download')
-
 install_dir = cmdutil.to_unix_path(info.install_dir)
 
 make_args = ('install -fwin32/Makefile.gcc SHARED_MODE=0' +
@@ -14,5 +12,4 @@ if info.crossbuild:
     make_args += ' PREFIX=' + info.crossbuild_host + '-'
 
 make(make_args)
-
 collect_licenses('README')

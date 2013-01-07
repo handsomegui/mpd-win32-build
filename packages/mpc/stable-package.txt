@@ -1,0 +1,4 @@
+source = git://git.musicpd.org/master/mpc.git
+source_rev = master
+enable_dist = true
+depends = mpdclient-stable

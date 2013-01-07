@@ -1,0 +1,19 @@
+enable_dist = true
+
+depends += audiofile
+depends += curl
+depends += ffmpeg
+depends += flac
+depends += glib
+depends += id3tag
+depends += lame
+depends += mad
+depends += mms
+depends += mpg123
+depends += ogg
+depends += openal
+depends += samplerate
+depends += sndfile
+depends += sqlite
+depends += vorbis
+depends += wavpack

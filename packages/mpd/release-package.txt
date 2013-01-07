@@ -1,0 +1,4 @@
+source = git://git.musicpd.org/master/mpd.git
+source_rev = release-0.17.3
+
+!include common/package

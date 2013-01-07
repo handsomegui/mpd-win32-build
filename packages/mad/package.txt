@@ -1,0 +1,2 @@
+source = git://gitorious.org/mad/libmad.git
+source_rev = 637baad
