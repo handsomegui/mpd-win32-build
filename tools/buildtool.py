@@ -59,6 +59,8 @@ def do_build_all(info):
     cmdutil.native_make(args, packageinfo.get_work_dir())
 
 def do_build_dist(info):
+    if not info.enable_dist:
+        raise ValueError('This package does not support building distribution')
     version = info.version()
     artifacts = info.artifacts()
     dist_name = '%s-%s-%s' % (info.short_name, version, info.dist_host)
