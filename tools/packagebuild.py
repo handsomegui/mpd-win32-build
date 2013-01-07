@@ -65,7 +65,7 @@ def make(args):
     cmdutil.unix_make(args.split(), work_dir=build_dir)
 
 def remove(file):
-    fsutil.safe_remove(file)
+    fsutil.safe_remove(path.join(_info.build_dir, file))
 
 def patch(target_file, patch_file = None):
     if patch_file is None:
