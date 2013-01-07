@@ -1,0 +1,12 @@
+diff --git a/mdreg.c b/mdreg.c
+index 4018c7e..5e49a23 100644
+--- a/mdreg.c
++++ b/mdreg.c
+@@ -28,6 +28,7 @@
+ 
+ #ifdef HAVE_CONFIG_H
+ #include "config.h"
++#undef DRV_PIPE
+ #endif
+ 
+ #include "mikmod_internals.h"

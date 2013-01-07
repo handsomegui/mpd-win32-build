@@ -1,0 +1,7 @@
+patch('include/mikmod.h.in')
+patch('include/mikmod_internals.h')
+patch('drivers/drv_pipe.c')
+patch('playercode/mdreg.c')
+patch('libmikmod/Makefile.in')
+build(static_lib=True)
+collect_licenses('AUTHORS COPYING.LESSER')

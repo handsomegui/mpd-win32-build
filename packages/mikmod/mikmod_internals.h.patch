@@ -1,0 +1,23 @@
+diff --git a/mikmod_internals.h b/mikmod_internals.h
+index 32da563..f82e95f 100644
+--- a/mikmod_internals.h
++++ b/mikmod_internals.h
+@@ -38,6 +38,7 @@ extern "C" {
+ #endif
+ #include <stdarg.h>
+ #if defined(__OS2__)||defined(__EMX__)||defined(WIN32)
++#undef strcasecmp
+ #define strcasecmp(s,t) stricmp(s,t)
+ #endif
+ 
+@@ -69,6 +70,10 @@ extern MikMod_handler_t _mm_errorhandler;
+ 
+ /*========== Memory allocation */
+ 
++#undef _mm_malloc
++#undef _mm_free
++#undef _mm_calloc
++
+ extern void* _mm_malloc(size_t);
+ extern void* _mm_calloc(size_t,size_t);
+ #define _mm_free(p) do { if (p) free(p); p = NULL; } while(0)

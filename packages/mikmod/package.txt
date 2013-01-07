@@ -1,0 +1,1 @@
+source = http://sourceforge.net/projects/mikmod/files/libmikmod%20%28source%29/3.1.12/libmikmod-3.1.12.tar.gz/download

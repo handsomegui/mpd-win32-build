@@ -8,6 +8,7 @@ depends += glib
 depends += id3tag
 depends += lame
 depends += mad
+depends += mikmod
 depends += mms
 depends += mpg123
 depends += musepack

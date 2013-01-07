@@ -1,0 +1,20 @@
+diff --git a/mikmod.h b/mikmod.h
+index dc96e6d..764bf1e 100644
+--- a/mikmod.h.in
++++ b/mikmod.h.in
+@@ -40,15 +40,7 @@ extern "C" {
+  * ========== Compiler magic for shared libraries
+  */
+ 
+-#if defined WIN32 && defined _DLL
+-#ifdef DLL_EXPORTS
+-#define MIKMODAPI __declspec(dllexport)
+-#else
+-#define MIKMODAPI __declspec(dllimport)
+-#endif
+-#else
+ #define MIKMODAPI
+-#endif
+ 
+ /*
+  *	========== Library version

@@ -1,0 +1,13 @@
+diff --git a/Makefile.in b/Makefile.in
+index 634acf4..60ed921 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -29,7 +29,7 @@ LIBTOOL=@LIBTOOL@
+ MKINSTALLDIRS=${top_srcdir}/mkinstalldirs
+ 
+ DEFS=@DEFS@
+-CFLAGS=@CFLAGS@ -Dunix
++CFLAGS=@CFLAGS@
+ COMPILE=$(LIBTOOL) --silent --mode=compile $(CC) $(DEFS) $(CFLAGS) -I$(top_srcdir)/include -I$(top_builddir) -I$(top_builddir)/include -DMIKMOD_H=$(top_srcdir)/include/mikmod.h
+ 
+ LIB = libmikmod.la

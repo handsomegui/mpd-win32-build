@@ -1,0 +1,12 @@
+diff --git a/drv_pipe.c b/drv_pipe.c
+index 858bea7..50d00e8 100644
+--- a/drv_pipe.c
++++ b/drv_pipe.c
+@@ -34,6 +34,7 @@
+ 
+ #ifdef HAVE_CONFIG_H
+ #include "config.h"
++#undef DRV_PIPE
+ #endif
+ 
+ #include "mikmod_internals.h"
