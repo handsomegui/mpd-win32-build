@@ -3,6 +3,8 @@ import fsutil
 
 from os import path
 
+DEFAULT_PROFILE = 'default'
+
 def get(name, fallback = ''):
     return _config_vars.get(name, fallback)
 
@@ -17,8 +19,6 @@ def init(profile):
     dir = os.environ.get('BUILDTOOL_CONFIG_DIR', '')
     if not dir:
         dir = path.join(path.expanduser('~'), '.buildtool')
-    if not profile:
-        profile = 'default'
     _config_vars = load(path.join(dir, profile + '.conf'))
 
 def load(file):

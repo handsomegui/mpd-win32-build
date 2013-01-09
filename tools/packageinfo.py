@@ -142,7 +142,7 @@ def _init_dirs(base_dir, profile):
     if not path.exists(_package_dir):
         raise ValueError('Package directory is not found: ' + _package_dir)
         
-    if profile:
+    if profile != config.DEFAULT_PROFILE:
         work = 'work-' + profile
     else:
         work = 'work'
