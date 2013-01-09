@@ -41,9 +41,10 @@ def check_stamp(info):
 def log(info, message):
     print "buildtool: %s %s" % (info.name.ljust(16), message)
 
-def do_build(info):
+def build(info, force):
     log(info, 'checking')
-    if packagefetch.fetch(info, not check_stamp(info)):
+    force_fetch = force or (not check_stamp(info))
+    if packagefetch.fetch(info, force_fetch):
         log(info, 'building')
         packagebuild.run(info)
         fsutil.write_stamp(info.stamp_file)
@@ -51,15 +52,17 @@ def do_build(info):
     else:
         log(info, 'up to date')
 
+def do_build(info):
+    build(info, False)
+
+def do_rebuild(info):
+    build(info, True)
+
 def do_clean(info):
     fsutil.safe_remove_dir(info.work_dir)
 
 def do_clean_cache(info):
     fsutil.safe_remove_dir(info.cache_dir)
-
-def do_rebuild(info):
-    do_clean(info)
-    do_build(info)
 
 def do_build_all(info):
     do_generate_makefile()
