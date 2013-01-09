@@ -135,7 +135,7 @@ def get_action_func(action):
     return action_map[action]
 
 def show_usage():
-    print 'buildtool -- perform build action on specified target'
+    print 'buildtool -- a tool for building packages.'
     print
     print 'Usage:   buildtool action [target]'
     print
@@ -143,7 +143,7 @@ def show_usage():
     print
     print wrap_for_usage('Targets: ', packageinfo.get_packages())
     print
-    print 'See supplied README file for more details'
+    print 'See supplied README file for more details.'
 
 def init():
     global _config_profile
