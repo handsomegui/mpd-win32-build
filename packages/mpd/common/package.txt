@@ -21,3 +21,4 @@ depends += sndfile
 depends += sqlite
 depends += vorbis
 depends += wavpack
+depends += winmm_info
