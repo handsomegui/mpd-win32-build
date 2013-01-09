@@ -9,6 +9,9 @@ def get(name, fallback = ''):
 def get_list(name):
     return get(name).split(_get_separator(name))
 
+def get_bool(name):
+    return get(name) == 'true'
+
 def init(profile):
     global _config_vars
     dir = os.environ.get('BUILDTOOL_CONFIG_DIR', '')

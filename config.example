@@ -29,6 +29,9 @@
 # Each individual library/application is still compiled using one job.
 # build_jobs = 2
 
+# Enables striping of binaries (default is false)
+# strip_binaries = true
+
 # Defines any additional directories to prepend to PATH.
 # Entries could be merged with +=.
 # path += C:\devtools\mingw\bin

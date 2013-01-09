@@ -97,7 +97,10 @@ def collect_system_libs(libgcc=False, libstdcxx=False):
         _collect_artifacts(patterns, path.dirname(gcc_path), target_dir)
 
 def collect_binaries(patterns):
-    _collect_artifacts(patterns.split(), path.join(_info.install_dir, 'bin'), 'bin')
+    source_dir = path.join(_info.install_dir, 'bin')
+    files = _collect_artifacts(patterns.split(), source_dir, 'bin')
+    if config.get_bool('strip_binaries'):
+        _strip(files)
 
 def collect_docs(patterns, source_dir=''):
     collect_files(patterns, source_dir, 'doc')
@@ -119,14 +122,24 @@ def install(patterns, source_dir = '', target_dir = ''):
             shutil.copy(source, target_dir_full)
 
 def _collect_artifacts(patterns, source_dir, target_dir):
-    found = False
+    files = []
     with open(_info.artifacts_file, 'a') as f:
         for pattern in patterns:
             for source in glob.iglob(path.join(source_dir, pattern)):
                 target = path.join(target_dir, path.basename(source))
-                f.write('%s -> %s\n' % (path.normpath(source), path.normpath(target)))
-                found = True
-    return found
+                source_n = path.normpath(source)
+                target_n = path.normpath(target)
+                f.write('%s -> %s\n' % (source_n, target_n))
+                files.append(source_n)
+    return files
+    
+def _strip(files):
+    if _info.crossbuild_host:
+        strip = _info.crossbuild_host + '-strip'
+    else:
+        strip = 'strip'
+    for f in files:
+        cmdutil.native_exec(strip, ['--strip-all', f])
 
 def _add_subpath(base, subpath):
     if subpath:
