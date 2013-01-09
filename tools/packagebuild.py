@@ -60,6 +60,27 @@ def patch(target_file, patch_file = None):
     target_file_abs = path.join(_info.build_dir, target_file)
     patch_file_abs = path.join(_info.script_dir, patch_file)
     cmdutil.patch(target_file_abs, patch_file_abs)
+    
+def generate_pkg_config(pkgname = None, libname = None, version = None):
+    if not pkgname:
+        pkgname = 'lib' + _info.short_name
+    if not libname:
+        libname = _info.short_name
+    if not version:
+        version = '1.0.0'
+    output_file = path.join(_info.install_dir, 'lib', 'pkgconfig', pkgname + '.pc')
+    fsutil.make_dir(path.dirname(output_file))
+    with open(output_file, 'wb') as f:
+        f.write('prefix=%s\n' % cmdutil.to_unix_path(_info.install_dir))
+        f.write('exec_prefix=${prefix}\n')
+        f.write('libdir=${exec_prefix}/lib\n')
+        f.write('includedir=${prefix}/include\n')
+        f.write('\n')
+        f.write('Name: %s\n' % pkgname)
+        f.write('Description: %s library\n' % libname)
+        f.write('Version: %s\n' % version)
+        f.write('Libs: -L${libdir} -l%s\n' % libname)
+        f.write('Cflags: -I${includedir}\n')
 
 def collect_version(src_file = 'configure.ac', include_rev = False):
     src_file_full = path.join(_info.build_dir, src_file)
