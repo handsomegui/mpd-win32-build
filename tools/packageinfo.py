@@ -180,10 +180,10 @@ def _decode_name(name):
     return short_name, variant_name
 
 def _get_package_variants(name):
-    suffix = '-build.py'
+    suffix = '-package.txt'
     result = []
     package_dir = path.join(_package_dir, name)
-    if path.exists(path.join(package_dir, name)):
+    if path.exists(path.join(package_dir, 'package.txt')):
         return [name]
     for builder in glob.iglob(path.join(package_dir, '*' + suffix)):
         builder_base = path.basename(builder)
