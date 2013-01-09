@@ -153,7 +153,7 @@ def _collect_artifacts(patterns, source_dir, target_dir):
     return files
     
 def _strip(files):
-    if _info.crossbuild_host:
+    if _info.crossbuild:
         strip = _info.crossbuild_host + '-strip'
     else:
         strip = 'strip'
@@ -175,7 +175,7 @@ def _build_cmake_args():
     install_prefix = cmdutil.to_cmake_path(_info.install_dir)
     result = ['..', '-G', generator, '-DCMAKE_INSTALL_PREFIX=' + install_prefix]
     
-    if _info.crossbuild_host:
+    if _info.crossbuild:
         _write_crossbuild_file(path.join(_info.build_dir, 'crossbuild.cmake'))
         result.append('-DCMAKE_TOOLCHAIN_FILE=../crossbuild.cmake')
 
@@ -224,7 +224,7 @@ def _build_configure_env(user_libs, user_cflags):
         'PKG_CONFIG_PATH' : ':'.join(pkg_config_paths),
     }
 
-    if _info.crossbuild_host:
+    if _info.crossbuild:
         result.update({
             'AR'      : _info.crossbuild_host + '-ar',
             'AS'      : _info.crossbuild_host + '-as',
@@ -249,7 +249,7 @@ def _find_configure(build_dir):
     raise ValueError('Unable to find configuration script, tried: ' + ', '.join(items))
 
 def _get_gcc_path():
-    if _info.crossbuild_host:
+    if _info.crossbuild:
         gcc = _info.crossbuild_host + '-gcc'
     else:
         gcc = 'gcc'
