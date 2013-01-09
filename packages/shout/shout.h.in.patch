@@ -1,0 +1,14 @@
+diff --git a/shout.h.in b/shout.h.in
+index 527b011..75b6d30 100644
+--- a/shout.h.in
++++ b/shout.h.in
+@@ -22,9 +22,6 @@
+ #define __LIBSHOUT_SHOUT_H__
+ 
+ #include <sys/types.h>
+-#ifdef WIN32
+-#include <os.h>
+-#endif
+ 
+ #define SHOUTERR_SUCCESS	(0)
+ #define SHOUTERR_INSANE		(-1)

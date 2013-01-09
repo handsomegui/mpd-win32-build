@@ -16,6 +16,7 @@ depends += mpg123
 depends += ogg
 depends += openal
 depends += samplerate
+depends += shout
 depends += sndfile
 depends += sqlite
 depends += vorbis
