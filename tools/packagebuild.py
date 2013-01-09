@@ -61,9 +61,7 @@ def patch(target_file, patch_file = None):
     patch_file_abs = path.join(_info.script_dir, patch_file)
     cmdutil.patch(target_file_abs, patch_file_abs)
     
-def generate_pkg_config(pkgname = None, libname = None, version = None):
-    if not pkgname:
-        pkgname = 'lib' + _info.short_name
+def generate_pkg_config(pkgname, libname = None, version = None):
     if not libname:
         libname = _info.short_name
     if not version:
