@@ -6,7 +6,6 @@ from os import path
 def run(info):
     global _info
     _info = info
-    _info.init_dirs()
     fsutil.safe_remove(_info.build_log_file)
     cmdutil.redirect_output(_info.build_log_file)
     execfile(_info.build_file, _get_builder_symbols())

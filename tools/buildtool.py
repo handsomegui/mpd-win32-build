@@ -44,6 +44,7 @@ def log(info, message):
 def build(info, force):
     log(info, 'checking')
     force_fetch = force or (not check_stamp(info))
+    info.init_dirs()
     if packagefetch.fetch(info, force_fetch):
         log(info, 'building')
         packagebuild.run(info)

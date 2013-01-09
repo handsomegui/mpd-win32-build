@@ -49,6 +49,7 @@ class PackageInfo:
         fsutil.make_dir(self.work_dir)
         fsutil.make_dir(self.build_dir)
         fsutil.make_dir(self.install_dir)
+        fsutil.make_dir(self.cache_dir)
         if self.enable_dist:
             fsutil.make_dir(self.dist_dir)
 
