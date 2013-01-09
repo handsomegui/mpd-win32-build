@@ -55,7 +55,7 @@ def do_rebuild(info):
 
 def do_build_all(info):
     do_generate_makefile()
-    args = ['-j', config.get('build_jobs', '1'), info.name]
+    args = ['-j', config.get('build_jobs', '1'), 'build-' + info.name]
     cmdutil.native_make(args, packageinfo.get_work_dir())
 
 def do_build_dist(info):
@@ -77,7 +77,7 @@ def do_generate_makefile():
         info = packageinfo.get(name)
         dependency_map.update(info.dependency_map())
     names = sorted(dependency_map.iterkeys())
-    build_targets = names
+    build_targets = add_prefix('build-', names)
     clean_targets = add_prefix('clean-', names)
 
     target_file = path.join(packageinfo.get_work_dir(), 'Makefile')
@@ -99,7 +99,8 @@ def do_generate_makefile():
         f.write('clean: %s\n\n' % join(clean_targets))
 
         for name, target in zip(names, build_targets):
-            f.write('%s: %s\n' % (target, join(dependency_map[name])))
+            deps = join(add_prefix('build-', dependency_map[name]))
+            f.write('%s: %s\n' % (target, deps))
             f.write('\t@$(build) %s\n\n' % name)
 
         for name, target in zip(names, clean_targets):

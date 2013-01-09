@@ -104,6 +104,6 @@ Examples:
 
     $ ./buildtool generate-makefile
     $ cd work
-    $ make -j 4 mpd-release
+    $ make -j 4 build-mpd-release
     $ cd ..
     $ ./buildtool build-dist mpd-release
