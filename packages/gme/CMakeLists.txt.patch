@@ -1,0 +1,21 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 9828897..d755384 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -148,7 +148,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/gme_types.h.in
+ include_directories(${CMAKE_CURRENT_BINARY_DIR})
+ 
+ # Add library to be compiled.
+-add_library(gme SHARED ${libgme_SRCS})
++add_library(gme STATIC ${libgme_SRCS})
+ 
+ # The version is the release.  The "soversion" is the API version.  As long
+ # as only build fixes are performed (i.e. no changes/additions to API) the
+@@ -158,6 +158,6 @@ set_target_properties(gme
+                SOVERSION 0)
+ 
+ # TODO: Libsuffix for 64-bit?
+-install(TARGETS gme LIBRARY DESTINATION lib)
++install(TARGETS gme ARCHIVE DESTINATION lib)
+ 
+ install(FILES ${EXPORTED_HEADERS} DESTINATION include/gme)

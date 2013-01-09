@@ -5,6 +5,7 @@ depends += curl
 depends += ffmpeg
 depends += flac
 depends += glib
+depends += gme
 depends += id3tag
 depends += lame
 depends += mad
