@@ -7,12 +7,20 @@ from textwrap import TextWrapper
 def join(items):
     return ' '.join(items)
 
-def wrap(prefix, items):
+def wrap_for_usage(prefix, items):
     line = prefix + join(sorted(items))
     wrapper = TextWrapper()
     wrapper.break_on_hyphens = False
     wrapper.subsequent_indent = ' ' * len(prefix)
     return wrapper.fill(line)
+
+def wrap_for_make(items):
+    line = join(sorted(items))
+    wrapper = TextWrapper()
+    wrapper.width = 60
+    wrapper.break_on_hyphens = False
+    wrapper.subsequent_indent = '\t' * 2
+    return ' \\\n'.join(wrapper.wrap(line))
 
 def add_prefix(prefix, items):
     return map(lambda s: prefix + s, items)
@@ -96,11 +104,11 @@ def do_generate_makefile():
         f.write('refresh:\n')
         f.write('\t@$(buildtool) generate-makefile\n\n')
 
-        f.write('clean: %s\n\n' % join(clean_targets))
+        f.write('clean: %s\n\n' % wrap_for_make(clean_targets))
 
         for name, target in zip(names, build_targets):
-            deps = join(add_prefix('build-', dependency_map[name]))
-            f.write('%s: %s\n' % (target, deps))
+            deps = add_prefix('build-', dependency_map[name])
+            f.write('%s: %s\n' % (target, wrap_for_make(deps)))
             f.write('\t@$(build) %s\n\n' % name)
 
         for name, target in zip(names, clean_targets):
@@ -108,8 +116,8 @@ def do_generate_makefile():
             f.write('\t@$(clean) %s\n\n' % name)
 
         f.write('.PHONY: _default refresh clean\n')
-        f.write('.PHONY: %s\n' % join(build_targets))
-        f.write('.PHONY: %s\n' % join(clean_targets))
+        f.write('.PHONY: %s\n' % wrap_for_make(build_targets))
+        f.write('.PHONY: %s\n' % wrap_for_make(clean_targets))
 
 def build_action_map():
     prefix = 'do_'
@@ -131,9 +139,9 @@ def show_usage():
     print
     print 'Usage:   buildtool action [target]'
     print
-    print wrap('Actions: ', build_action_map().keys())
+    print wrap_for_usage('Actions: ', build_action_map().keys())
     print
-    print wrap('Targets: ', packageinfo.get_packages())
+    print wrap_for_usage('Targets: ', packageinfo.get_packages())
     print
     print 'See supplied README file for more details'
 
