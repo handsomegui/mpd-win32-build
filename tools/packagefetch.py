@@ -7,6 +7,8 @@ def fetch(info, force):
     if not info.source:
         raise ValueError('Package source is not specified')
     fsutil.make_dir(info.cache_dir)
+    fsutil.safe_remove(info.fetch_log_file)
+    cmdutil.redirect_output(info.fetch_log_file)
     if info.source.startswith('git://') or info.source.endswith('.git'):
         return _fetch_git(info, force)
     else:

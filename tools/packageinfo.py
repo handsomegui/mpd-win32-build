@@ -86,7 +86,8 @@ class PackageInfo:
         self.stamp_file = path.join(self.work_dir, 'stamp.txt')
         self.artifacts_file = path.join(self.work_dir, 'artifacts.txt')
         self.version_file = path.join(self.work_dir, 'version.txt')
-        self.log_file = path.join(self.work_dir, 'build.log')
+        self.build_log_file = path.join(self.work_dir, 'build.log')
+        self.fetch_log_file = path.join(self.work_dir, 'fetch.log')
 
         self.crossbuild = _crossbuild
         self.crossbuild_build = _crossbuild_build
