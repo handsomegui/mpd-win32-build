@@ -201,26 +201,29 @@ def _build_configure_env(user_libs, user_cflags):
     cflags = []
     pkg_config_paths = []
 
-    for dep in _info.dependency_map().iterkeys():
-        if dep==_info.name:
+    for dep_name in _info.dependency_map().iterkeys():
+        if dep_name == _info.name:
             continue
-        p = packageinfo.get(dep).install_dir
+        p = packageinfo.get(dep_name).install_dir
         paths.append(path.join(p, 'bin'))
         libs.append('-L' + cmdutil.to_unix_path(path.join(p, 'lib')))
         cflags.append('-I' + cmdutil.to_unix_path(path.join(p, 'include')))
         pkg_config_paths.append(cmdutil.to_unix_path(path.join(p, 'lib', 'pkgconfig')))
 
-    env_libs = config.get_list('libs')
-    env_cflags = config.get_list('cflags')
+    env_libs = config.get_list('libs') + config.get_list(_info.name + '-libs')
+    env_cflags = config.get_list('cflags') + config.get_list(_info.name + '-cflags')
 
-    lenv_libs = config.get_list(_info.name + '-libs')
-    lenv_cflags = config.get_list(_info.name + '-cflags')
+    result_path = os.pathsep.join(paths)
+    result_libs = ' '.join(libs + user_libs + env_libs)
+    result_cflags = ' '.join(cflags + user_cflags + env_cflags)
+    result_pkg_config_path = ':'.join(pkg_config_paths)
 
     result = {
-        'PATH'            : os.pathsep.join(paths),
-        'LIBS'            : ' '.join(libs + user_libs + env_libs + lenv_libs),
-        'CFLAGS'          : ' '.join(cflags + user_cflags + env_cflags + lenv_cflags),
-        'PKG_CONFIG_PATH' : ':'.join(pkg_config_paths),
+        'PATH'            : result_path,
+        'LIBS'            : result_libs,
+        'CFLAGS'          : result_cflags,
+        'CXXFLAGS'        : result_cflags,
+        'PKG_CONFIG_PATH' : result_pkg_config_path,
     }
 
     if _info.crossbuild:
