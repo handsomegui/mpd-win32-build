@@ -40,6 +40,15 @@ def check_stamp(info):
             return False
     return path.getmtime(info.stamp_file) >= max_mtime
 
+def check_deps(info):
+    for dep_name in info.dependency_map().iterkeys():
+        if dep_name != info.name:
+            dep_info = packageinfo.get(dep_name)
+            if not path.exists(dep_info.stamp_file):
+                log(info, "error: dependency '%s' is not built" % dep_name)
+                return False
+    return True
+
 def log(info, message):
     print "buildtool: %s %s" % (info.name.ljust(16), message)
 
@@ -48,10 +57,13 @@ def build(info, force):
     force_fetch = force or (not check_stamp(info))
     info.init_dirs()
     if packagefetch.fetch(info, force_fetch):
-        log(info, 'building')
-        packagebuild.run(info)
-        fsutil.write_stamp(info.stamp_file)
-        log(info, 'done')
+        if check_deps(info):
+            log(info, 'building')
+            packagebuild.run(info)
+            fsutil.write_stamp(info.stamp_file)
+            log(info, 'done')
+        else:
+            log(info, 'aborted')
     else:
         log(info, 'up to date')
 
