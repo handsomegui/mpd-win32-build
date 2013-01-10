@@ -28,15 +28,17 @@ def add_prefix(prefix, items):
 def check_stamp(info):
     if not path.exists(info.stamp_file):
         return False
-    stamp_mtime = path.getmtime(info.stamp_file)
     max_mtime = 0
+    dep_stamps = [info.package_file, info.build_file]
     for dep_name in info.dependency_map().iterkeys():
-        dep_info = packageinfo.get(dep_name)
-        for f in [dep_info.stamp_file, dep_info.package_file, dep_info.build_file]:
-            if not path.exists(dep_info.stamp_file):
-                return False
-            max_mtime = max(max_mtime, path.getmtime(f))
-    return stamp_mtime >= max_mtime
+        if dep_name != info.name:
+            dep_stamps.append(packageinfo.get(dep_name).stamp_file)
+    for dep_stamp in dep_stamps:
+        if path.exists(dep_stamp):
+            max_mtime = max(max_mtime, path.getmtime(dep_stamp))
+        else:
+            return False
+    return path.getmtime(info.stamp_file) >= max_mtime
 
 def log(info, message):
     print "buildtool: %s %s" % (info.name.ljust(16), message)
