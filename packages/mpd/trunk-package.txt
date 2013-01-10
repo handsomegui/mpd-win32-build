@@ -2,3 +2,5 @@ source = git://git.musicpd.org/master/mpd.git
 source_rev = master
 
 !include common/package
+
+depends += opus
