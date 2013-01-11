@@ -205,10 +205,19 @@ def _build_configure_env(user_libs, user_cflags):
         if dep_name == _info.name:
             continue
         p = packageinfo.get(dep_name).install_dir
-        paths.append(path.join(p, 'bin'))
-        libs.append('-L' + cmdutil.to_unix_path(path.join(p, 'lib')))
-        cflags.append('-I' + cmdutil.to_unix_path(path.join(p, 'include')))
-        pkg_config_paths.append(cmdutil.to_unix_path(path.join(p, 'lib', 'pkgconfig')))
+        bin_dir = path.join(p, 'bin')
+        lib_dir = path.join(p, 'lib')
+        include_dir = path.join(p, 'include')
+        pkg_config_dir = path.join(p, 'lib', 'pkgconfig')
+
+        if path.exists(bin_dir):
+            paths.append(bin_dir)
+        if path.exists(lib_dir):
+            libs.append('-L' + cmdutil.to_unix_path(lib_dir))
+        if path.exists(include_dir):
+            cflags.append('-I' + cmdutil.to_unix_path(include_dir))
+        if path.exists(pkg_config_dir):
+            pkg_config_paths.append(cmdutil.to_unix_path(pkg_config_dir))
 
     env_libs = config.get_list('libs') + config.get_list(_info.name + '-libs')
     env_cflags = config.get_list('cflags') + config.get_list(_info.name + '-cflags')
