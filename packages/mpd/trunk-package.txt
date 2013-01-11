@@ -4,3 +4,4 @@ source_rev = master
 !include common/package
 
 depends += opus
+depends += mpdclient-stable
