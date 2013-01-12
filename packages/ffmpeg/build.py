@@ -96,6 +96,6 @@ options = """
 if info.crossbuild:
     options += ' --enable-cross-compile --arch=x86 --target-os=mingw32 --cross-prefix=' + info.crossbuild_host + '-'
 
-build(static_lib=True, options=options, crossbuild_options=False, cflags='-mstackrealign -mpreferred-stack-boundary=4')
+build(static_lib=True, options=options, crossbuild_options=False)
 
 collect_licenses('LICENSE COPYING.LGPLv2.1')
