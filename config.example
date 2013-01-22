@@ -48,7 +48,7 @@
 #   or
 # build = x86_64-linux-gnu
 #   or
-# build = i686-unknown-mingw32
+# build = i686-pc-mingw32
 
 # Defines host triplet to pass to configure script.
 # host = i686-w64-mingw32
