@@ -116,9 +116,10 @@ def collect_system_libs(libgcc=False, libstdcxx=False):
 
 def collect_binaries(patterns):
     source_dir = path.join(_info.install_dir, 'bin')
-    files = _collect_artifacts(patterns.split(), source_dir, 'bin')
-    if config.get_bool('strip_binaries'):
-        _strip(files)
+    binaries = _collect_artifacts(patterns.split(), source_dir, 'bin')
+    _postprocess(binaries,
+        config.get_bool('strip_binaries'),
+        config.get_bool('extract_debug_info'))
 
 def collect_docs(patterns, source_dir=''):
     collect_files(patterns, source_dir, 'doc')
@@ -151,13 +152,26 @@ def _collect_artifacts(patterns, source_dir, target_dir):
                 files.append(source_n)
     return files
     
-def _strip(files):
+def _postprocess(files, do_strip, do_extract_dbg):
+    if not (do_strip or do_extract_dbg):
+        return
     if _info.crossbuild:
         strip = _info.crossbuild_host + '-strip'
+        objcopy = _info.crossbuild_host + '-objcopy'
     else:
         strip = 'strip'
-    for f in files:
-        cmdutil.native_exec(strip, ['--strip-all', f])
+        objcopy = 'objcopy'
+    result = []
+    for target in files:
+        dbgfile = target + ".debug"
+        if do_extract_dbg:
+            cmdutil.native_exec(objcopy, ['--only-keep-debug', target, dbgfile])
+            result.append(dbgfile)
+        if do_strip:
+            cmdutil.native_exec(strip, ['--strip-all', target])
+        if do_extract_dbg:
+            cmdutil.native_exec(objcopy, ['--add-gnu-debuglink=' + dbgfile, target])
+    return result
 
 def _add_subpath(base, subpath):
     if subpath:

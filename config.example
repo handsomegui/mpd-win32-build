@@ -32,6 +32,9 @@
 # Enables striping of binaries (default is false)
 # strip_binaries = true
 
+# Enables extraction of debug information to separate files (default is false).
+# extract_debug_info = true
+
 # Defines any additional directories to prepend to PATH.
 # Entries could be merged with +=.
 # path += C:\devtools\mingw\bin
