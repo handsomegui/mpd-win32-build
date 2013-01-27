@@ -1,2 +1,3 @@
 source = git://github.com/dkrjuchkov/winmm-info.git
 source_rev = master
+platforms = windows
