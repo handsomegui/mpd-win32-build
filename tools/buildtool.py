@@ -53,6 +53,10 @@ def log(info, message):
     print "buildtool: %s %s" % (info.name.ljust(16), message)
 
 def build(info, force):
+    if not info.enabled:
+        raise ValueError(
+            "Package '%s' is not supported on platform '%s'"
+            % (info.name, toolchain.target))
     log(info, 'checking')
     force_fetch = force or (not check_stamp(info))
     info.init_dirs()
@@ -101,7 +105,8 @@ def do_generate_makefile():
     dependency_map = {}
     for name in packageinfo.get_packages():
         info = packageinfo.get(name)
-        dependency_map.update(info.dependency_map())
+        if info.enabled:
+            dependency_map.update(info.dependency_map())
     names = sorted(dependency_map.iterkeys())
     build_targets = add_prefix('build-', names)
     clean_targets = add_prefix('clean-', names)

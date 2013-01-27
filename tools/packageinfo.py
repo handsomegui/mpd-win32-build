@@ -1,5 +1,5 @@
 import os, glob
-import config, cmdutil, fsutil
+import config, cmdutil, fsutil, toolchain
 
 from os import path
 
@@ -19,16 +19,24 @@ class PackageInfo:
         return None
 
     def dependency_map(self):
+        if not self.enabled:
+            raise ValueError('Unable to build dependency map for disabled package')
         if self.dep_map is not None:
             return self.dep_map
         result = {}
-        next = [self.name]
+        next = [self]
         while next:
-            name = next.pop()
-            if name in result:
+            info = next.pop()
+            if info.name in result:
                 continue
-            deps = get(name).depends
-            result[name] = deps
+            deps = []
+            names = []
+            for name in info.depends:
+                dep = get(name)
+                if dep.enabled:
+                    deps.append(dep)
+                    names.append(name)
+            result[info.name] = names
             next.extend(deps)
         self.dep_map = result
         return result
@@ -89,6 +97,9 @@ class PackageInfo:
         self.fetch_log_file = path.join(self.work_dir, 'fetch.log')
 
         options = config.load(self.package_file)
+        platforms = options.get('platforms', '').split()
+
+        self.enabled = (not platforms) or (toolchain.target in platforms)
 
         self.depends = options.get('depends', '').split()
         self.enable_dist = options.get('enable_dist', '')=='true'
