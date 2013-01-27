@@ -1,8 +1,8 @@
 import sys, platform
 import config
 
-target_linux   = 0
-target_windows = 1
+target_linux   = 'linux'
+target_windows = 'windows'
 
 def _guess_target():
     global target
