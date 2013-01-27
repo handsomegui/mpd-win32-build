@@ -11,7 +11,7 @@ def _guess_target():
     global target_os_cmake
     global target_dist_suffix
 
-    if sys.os.startswith('win32'):
+    if sys.platform.startswith('win32'):
         target = target_windows
         target_arch = 'i686'
         target_os = 'mingw32'
@@ -19,7 +19,7 @@ def _guess_target():
         target_dist_suffix = 'win32'
         return
 
-    if sys.os.startswith('linux'):
+    if sys.platform.startswith('linux'):
         target = target_linux
         target_arch = platform.machine()
         target_os = 'linux'
@@ -27,7 +27,7 @@ def _guess_target():
         target_dist_suffix = platform.machine()
         return
 
-    raise ValueError('Unsupported os: ' + sys.os)
+    raise ValueError('Unsupported target platform: ' + sys.platform)
 
 def _set_target_from_triplet(t):
     global target
