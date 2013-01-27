@@ -64,8 +64,6 @@ class PackageInfo:
         self.name = name
         self.short_name, self.variant_name = _decode_name(name)
 
-        self.dist_host = _dist_host
-
         self.work_dir = path.join(_work_dir, name)
         self.build_dir  = path.join(self.work_dir, 'build')
         self.install_dir = path.join(self.work_dir, 'install')
@@ -90,10 +88,6 @@ class PackageInfo:
         self.build_log_file = path.join(self.work_dir, 'build.log')
         self.fetch_log_file = path.join(self.work_dir, 'fetch.log')
 
-        self.crossbuild = _crossbuild
-        self.crossbuild_build = _crossbuild_build
-        self.crossbuild_host = _crossbuild_host
-
         options = config.load(self.package_file)
 
         self.depends = options.get('depends', '').split()
@@ -108,31 +102,6 @@ class PackageInfo:
 _info_cache = {}
 
 def init(base_dir, profile):
-    _init_crossbuild()
-    _init_dirs(base_dir, profile)
-
-def _init_crossbuild():
-    global _crossbuild
-    global _crossbuild_build
-    global _crossbuild_host
-    global _dist_host
-
-    _crossbuild_build = config.get('build')
-    _crossbuild_host = config.get('host')
-
-    _crossbuild = (not cmdutil.on_windows) or _crossbuild_build or _crossbuild_host
-    if _crossbuild:
-        if not _crossbuild_build:
-            raise ValueError('Cross-compiling but build triplet is not set')
-        if not _crossbuild_host:
-            raise ValueError('Cross-compiling but host triplet is not set')
-
-    if _crossbuild and (_crossbuild_host.startswith('amd64') or _crossbuild_host.startswith('x86_64')):
-        _dist_host = 'win64'
-    else:
-        _dist_host = 'win32'
-
-def _init_dirs(base_dir, profile):
     global _base_dir
     global _package_dir
     global _cache_dir

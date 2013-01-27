@@ -1,3 +1,5 @@
+import toolchain
+
 # build options are taken from
 # https://github.com/lalinsky/build-scripts/blob/master/ffmpeg/common.sh
 
@@ -90,11 +92,16 @@ options = """
     --enable-decoder=pcm_u24be
     --enable-decoder=pcm_u24le
     --enable-decoder=rawvideo
-    --enable-memalign-hack
 """
 
-if info.crossbuild:
-    options += ' --enable-cross-compile --arch=x86 --target-os=mingw32 --cross-prefix=' + info.crossbuild_host + '-'
+if toolchain.crossbuild:
+    options += (
+        ' --enable-cross-compile --arch=%s --target-os=%s --cross-prefix=%s-'
+        % (toolchain.target_arch, toolchain.target_os, toolchain.host_triplet)
+    )
+
+if toolchain.target == toolchain.target_windows:
+    options += ' --enable-memalign-hack'
 
 build(static_lib=True, options=options, crossbuild_options=False)
 

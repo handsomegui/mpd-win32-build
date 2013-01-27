@@ -1,5 +1,5 @@
 import inspect, os, sys, shutil, zipfile
-import packagebuild, packageinfo, packagefetch, cmdutil, config, fsutil
+import packagebuild, packageinfo, packagefetch, cmdutil, config, fsutil, toolchain
 
 from os import path
 from textwrap import TextWrapper
@@ -89,7 +89,7 @@ def do_build_dist(info):
         raise ValueError('This package does not support building distribution')
     version = info.version()
     artifacts = info.artifacts()
-    dist_name = '%s-%s-%s' % (info.short_name, version, info.dist_host)
+    dist_name = '%s-%s-%s' % (info.short_name, version, toolchain.target_dist_suffix)
     dist_file = path.join(info.dist_dir, dist_name + '.zip')
 
     with zipfile.ZipFile(dist_file, mode='w', compression=zipfile.ZIP_DEFLATED) as z:
@@ -174,6 +174,7 @@ def init():
     _base_dir = os.environ.get('BUILDTOOL_BASE_DIR', os.getcwd())
 
     config.init(_config_profile)
+    toolchain.init()
     packageinfo.init(_base_dir, _config_profile)
 
 def run(action, targets):
