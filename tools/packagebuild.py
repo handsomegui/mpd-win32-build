@@ -243,7 +243,7 @@ def _build_configure_env(user_libs, user_cflags):
             'RANLIB'  : toolchain.tool_name('ranlib'),
             'STRIP'   : toolchain.tool_name('strip'),
             'WINRC'   : toolchain.tool_name('windres'),
-            'SYSROOT' : cmdutil.to_unix_path(toolchain.sysroot)
+            'PKG_CONFIG_LIBDIR' : '/nonexistent'
         })
 
     return result
