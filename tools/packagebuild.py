@@ -231,6 +231,7 @@ def _build_configure_env(user_libs, user_cflags):
     }
 
     if toolchain.crossbuild:
+        pkg_config_libdir = path.join(toolchain.sysroot, 'lib', 'pkgconfig')
         result.update({
             'AR'      : toolchain.tool_name('ar'),
             'AS'      : toolchain.tool_name('as'),
@@ -243,7 +244,7 @@ def _build_configure_env(user_libs, user_cflags):
             'RANLIB'  : toolchain.tool_name('ranlib'),
             'STRIP'   : toolchain.tool_name('strip'),
             'WINRC'   : toolchain.tool_name('windres'),
-            'PKG_CONFIG_LIBDIR' : '/nonexistent'
+            'PKG_CONFIG_LIBDIR' : cmdutil.to_unix_path(pkg_config_libdir)
         })
 
     return result
