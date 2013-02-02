@@ -1,5 +1,7 @@
 import sys, platform
-import config
+import config, cmdutil
+
+from os import path
 
 target_linux   = 'linux'
 target_windows = 'windows'
@@ -61,6 +63,17 @@ def _set_target_from_triplet(t):
 
     raise ValueError('Unknown target platform: ' + t)
 
+def _get_sysroot():
+    config_value = config.get('sysroot', '')
+    if config_value:
+        return config_value
+    gcc_path = cmdutil.which(tool_name('gcc'))
+    base_dir = path.dirname(path.dirname(gcc_path))
+    guessed_value = path.join(base_dir, host_triplet)
+    if not path.exists(guessed_value):
+        raise ValueError('Unable to guess sysroot, try specifying \'sysroot\' option')
+    return guessed_value
+
 def tool_name(name):
     if crossbuild:
         return host_triplet + '-' + name
@@ -71,6 +84,7 @@ def init():
     global crossbuild
     global build_triplet
     global host_triplet
+    global sysroot
 
     build_triplet = config.get('build')
     host_triplet = config.get('host')
@@ -82,5 +96,6 @@ def init():
         if not host_triplet:
             raise ValueError('Cross-compiling but host triplet is not set')
         _set_target_from_triplet(host_triplet)
+        sysroot = _get_sysroot()
     else:
         _guess_target()
